@@ -2,4 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npm i --no-package-lock
+npm run testnpm test
 npm run test
