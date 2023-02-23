@@ -78,23 +78,6 @@ function NO_EXTRA_GAS() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### OPERATOR_FILTER_REGISTRY
-
-```solidity
-function OPERATOR_FILTER_REGISTRY() external view returns (contract IOperatorFilterRegistry)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | contract IOperatorFilterRegistry | undefined |
-
 ### ROYALITY_FEE
 
 ```solidity
@@ -650,7 +633,7 @@ function safeBatchTransferFrom(address from, address to, uint256[] ids, uint256[
 
 
 
-*See {IERC1155-safeBatchTransferFrom}.      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.*
+*See {IERC1155-safeBatchTransferFrom}.*
 
 #### Parameters
 
@@ -665,12 +648,12 @@ function safeBatchTransferFrom(address from, address to, uint256[] ids, uint256[
 ### safeTransferFrom
 
 ```solidity
-function safeTransferFrom(address from, address to, uint256 tokenId, uint256 amount, bytes data) external nonpayable
+function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes data) external nonpayable
 ```
 
 
 
-*See {IERC1155-safeTransferFrom}.      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.*
+*See {IERC1155-safeTransferFrom}.*
 
 #### Parameters
 
@@ -678,7 +661,7 @@ function safeTransferFrom(address from, address to, uint256 tokenId, uint256 amo
 |---|---|---|
 | from | address | undefined |
 | to | address | undefined |
-| tokenId | uint256 | undefined |
+| id | uint256 | undefined |
 | amount | uint256 | undefined |
 | data | bytes | undefined |
 
@@ -736,7 +719,7 @@ function setApprovalForAll(address operator, bool approved) external nonpayable
 
 
 
-*See {IERC1155-setApprovalForAll}.      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.*
+*See {IERC1155-setApprovalForAll}.*
 
 #### Parameters
 
@@ -1364,22 +1347,6 @@ event URI(string value, uint256 indexed id)
 
 
 ## Errors
-
-### OperatorNotAllowed
-
-```solidity
-error OperatorNotAllowed(address operator)
-```
-
-
-
-*Emitted when an operator is not allowed.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| operator | address | undefined |
 
 ### PearlClubONFT__AlreadyClaimed
 
