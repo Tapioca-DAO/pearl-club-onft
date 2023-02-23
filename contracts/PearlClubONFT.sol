@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
-import {ERC1155} from '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
-import {IERC1155} from '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
+import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {ERC2981} from '@openzeppelin/contracts/token/common/ERC2981.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import {ONFT1155} from 'tapioca-sdk/src/contracts/token/onft/ONFT1155.sol';
+import {ONFT721} from 'tapioca-sdk/src/contracts/token/onft/ONFT721.sol';
 import {MerkleProof} from '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 
-contract PearlClubONFT is ONFT1155, ERC2981 {
-    string public name;
-    string public symbol;
+// TODO: Revert to ERC721
+contract PearlClubONFT is ONFT721, ERC2981 {
+    string private baseURI;
     uint256 public totalSupply;
 
     uint public nextMintId;
@@ -44,12 +44,12 @@ contract PearlClubONFT is ONFT1155, ERC2981 {
     /// @param _endMintId the max number of mints on this chain
     constructor(
         address _layerZeroEndpoint,
-        string memory _baseURI,
+        string memory __baseURI,
         uint _startMintId,
-        uint _endMintId
-    ) ONFT1155(_baseURI, _layerZeroEndpoint) {
-        name = 'Pearl Club ONFT';
-        symbol = 'PCNFT';
+        uint _endMintId,
+        uint256 _minGas
+    ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
+        baseURI = __baseURI;
         nextMintId = _startMintId;
         maxMintId = _endMintId;
     }
@@ -66,14 +66,8 @@ contract PearlClubONFT is ONFT1155, ERC2981 {
         uint256 newId = nextMintId;
         nextMintId++;
 
-        _creditTo(
-            0,
-            msg.sender,
-            _toSingletonArray(newId),
-            _toSingletonArray(1)
-        );
+        _creditTo(0, msg.sender, newId);
     }
-
 
     function setRoyaltiesRecipient(address newRecipient) external onlyOwner {
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
@@ -84,8 +78,12 @@ contract PearlClubONFT is ONFT1155, ERC2981 {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC2981, ONFT1155) returns (bool) {
+    ) public view virtual override(ERC2981, ONFT721) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return baseURI;
     }
 
     // --------Internal functions--------//
@@ -93,26 +91,35 @@ contract PearlClubONFT is ONFT1155, ERC2981 {
         address _from,
         uint16,
         bytes memory,
-        uint[] memory _tokenIds,
-        uint[] memory _amounts
+        uint _tokenId
     ) internal virtual override {
-        address spender = _msgSender();
         require(
-            spender == _from || isApprovedForAll(_from, spender),
-            'ONFT1155: send caller is not owner nor approved'
+            _isApprovedOrOwner(_msgSender(), _tokenId),
+            'ONFT721: send caller is not owner nor approved'
         );
-        _burnBatch(_from, _tokenIds, _amounts);
-        totalSupply -= _tokenIds.length;
+        require(
+            ERC721.ownerOf(_tokenId) == _from,
+            'ONFT721: send from incorrect owner'
+        );
+        _transfer(_from, address(this), _tokenId);
+        totalSupply--;
     }
 
     function _creditTo(
         uint16,
         address _toAddress,
-        uint[] memory _tokenIds,
-        uint[] memory _amounts
+        uint _tokenId
     ) internal virtual override {
-        _mintBatch(_toAddress, _tokenIds, _amounts, '');
-        totalSupply += _tokenIds.length;
+        require(
+            !_exists(_tokenId) ||
+                (_exists(_tokenId) && ERC721.ownerOf(_tokenId) == address(this))
+        );
+        if (!_exists(_tokenId)) {
+            _safeMint(_toAddress, _tokenId);
+        } else {
+            _transfer(address(this), _toAddress, _tokenId);
+        }
+        totalSupply++;
     }
 
     function _toBytes32(address addr) internal pure returns (bytes32) {
