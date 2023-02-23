@@ -5,10 +5,9 @@ import {IERC1155} from '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 import {ERC2981} from '@openzeppelin/contracts/token/common/ERC2981.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {ONFT1155} from 'tapioca-sdk/src/contracts/token/onft/ONFT1155.sol';
-import {DefaultOperatorFilterer} from 'operator-filter-registry/src/DefaultOperatorFilterer.sol';
 import {MerkleProof} from '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 
-contract PearlClubONFT is DefaultOperatorFilterer, ONFT1155, ERC2981 {
+contract PearlClubONFT is ONFT1155, ERC2981 {
     string public name;
     string public symbol;
     uint256 public totalSupply;
@@ -75,44 +74,6 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT1155, ERC2981 {
         );
     }
 
-    /**
-     * @dev See {IERC1155-setApprovalForAll}.
-     *      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.
-     */
-    function setApprovalForAll(
-        address operator,
-        bool approved
-    ) public override(ERC1155, IERC1155) onlyAllowedOperatorApproval(operator) {
-        super.setApprovalForAll(operator, approved);
-    }
-
-    /**
-     * @dev See {IERC1155-safeTransferFrom}.
-     *      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount,
-        bytes memory data
-    ) public override(ERC1155, IERC1155) onlyAllowedOperator(from) {
-        super.safeTransferFrom(from, to, tokenId, amount, data);
-    }
-
-    /**
-     * @dev See {IERC1155-safeBatchTransferFrom}.
-     *      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.
-     */
-    function safeBatchTransferFrom(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) public virtual override(ERC1155, IERC1155) onlyAllowedOperator(from) {
-        super.safeBatchTransferFrom(from, to, ids, amounts, data);
-    }
 
     function setRoyaltiesRecipient(address newRecipient) external onlyOwner {
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
