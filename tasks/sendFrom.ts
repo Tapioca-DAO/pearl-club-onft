@@ -10,8 +10,8 @@ export const sendFrom__task = async (
     const dstChainID = (SDK.API.utils.getChainBy("name", taskArgs.dstchain))?.lzChainId!
     const from = (await ethers.getSigners())[0].address;
     const to = taskArgs.toaddress ?? from;
-    const fee = (await pearlClubONFT.estimateSendFee(dstChainID, to, taskArgs.tokenid, 1, false, "0x")).nativeFee;
-    await pearlClubONFT.sendFrom(from, dstChainID, to, taskArgs.tokenid, 1, from, ethers.constants.AddressZero, "0x", {value:fee}).then(
+    const fee = (await pearlClubONFT.estimateSendFee(dstChainID, to, taskArgs.tokenid, false, "0x")).nativeFee;
+    await pearlClubONFT.sendFrom(from, dstChainID, to, taskArgs.tokenid, from, ethers.constants.AddressZero, "0x", {value:fee}).then(
         (tx) => console.log(`Sent token ${taskArgs.tokenid} from: ${from}\nto: ${to} \non ${taskArgs.dstchain} with LZID of ${dstChainID} successfully \ntxID: ${tx.hash}`)
     );
 }

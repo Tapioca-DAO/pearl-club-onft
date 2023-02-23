@@ -1,14 +1,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getTree } from "../scripts/utils";
+import { getPassword, getTree } from "../scripts/utils";
 import { padBuffer } from "../scripts/utils";
 
-export const getProof__task = async (
+export const getPassPhrase__task = async (
     taskArgs: {foraddress?:string},
     hre: HardhatRuntimeEnvironment,
 ) => {
     const {ethers} = hre;
     const address = taskArgs.foraddress ?? (await ethers.getSigners())[0].address;
-    const {tree} = getTree();
-    const proof = tree.getHexProof(padBuffer(address))
-    console.log(`Proof for: ${address} \nis: ${proof}`);
+    console.log(`Pass phrase for ${address} is: \n${getPassword(address)}`)
 }
