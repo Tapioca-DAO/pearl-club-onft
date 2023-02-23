@@ -13,8 +13,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await deploy('PearlClubONFT', {
         args: [
             ((SDK.API.utils.getSupportedChains()).find(({name}) => name == hre.network.name)?.address ?? ethers.constants.AddressZero),
-            `ipfs://${process.env.METADATA_CID}/${params.metadata}/{id}.json`
-            , params.startMintID, params.endMintID
+            `ipfs://${process.env.METADATA_CID}/${params.metadata}/`
+            , params.startMintID, params.endMintID, params.minGas
         ],
         from: deployer,
         log: true,
