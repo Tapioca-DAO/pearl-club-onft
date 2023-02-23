@@ -16,4 +16,5 @@ task('sendFrom', 'Sends ONFT to another chain', sendFrom__task)
 task('mint', 'mints an ONFT', mint__task)
     .addParam('proof', 'Merkle proof');
 
-task('getProof', 'Generates a proof for current signer', getProof__task);
+task('getProof', 'Generates a proof for current signer', getProof__task)
+.addOptionalParam('foraddress', 'Address');
