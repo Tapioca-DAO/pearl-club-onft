@@ -1,4 +1,4 @@
-# PearlClubONFT
+# ONFT721Core
 
 
 
@@ -43,84 +43,6 @@ function FUNCTION_TYPE_SEND() external view returns (uint16)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint16 | undefined |
-
-### ROYALITY_FEE
-
-```solidity
-function ROYALITY_FEE() external view returns (uint96)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint96 | undefined |
-
-### approve
-
-```solidity
-function approve(address to, uint256 tokenId) external nonpayable
-```
-
-
-
-*See {IERC721-approve}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| to | address | undefined |
-| tokenId | uint256 | undefined |
-
-### balanceOf
-
-```solidity
-function balanceOf(address owner) external view returns (uint256)
-```
-
-
-
-*See {IERC721-balanceOf}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| owner | address | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-### claimed
-
-```solidity
-function claimed(address) external view returns (bool)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | undefined |
 
 ### clearCredits
 
@@ -277,28 +199,6 @@ function forceResumeReceive(uint16 _srcChainId, bytes _srcAddress) external nonp
 | _srcChainId | uint16 | undefined |
 | _srcAddress | bytes | undefined |
 
-### getApproved
-
-```solidity
-function getApproved(uint256 tokenId) external view returns (address)
-```
-
-
-
-*See {IERC721-getApproved}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| tokenId | uint256 | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
 ### getConfig
 
 ```solidity
@@ -345,29 +245,6 @@ function getTrustedRemoteAddress(uint16 _remoteChainId) external view returns (b
 | Name | Type | Description |
 |---|---|---|
 | _0 | bytes | undefined |
-
-### isApprovedForAll
-
-```solidity
-function isApprovedForAll(address owner, address operator) external view returns (bool)
-```
-
-
-
-*See {IERC721-isApprovedForAll}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| owner | address | undefined |
-| operator | address | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | undefined |
 
 ### isTrustedRemote
 
@@ -428,40 +305,6 @@ function lzReceive(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _
 | _nonce | uint64 | undefined |
 | _payload | bytes | undefined |
 
-### maxMintId
-
-```solidity
-function maxMintId() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-### merkleRoot
-
-```solidity
-function merkleRoot() external view returns (bytes32)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bytes32 | undefined |
-
 ### minDstGasLookup
 
 ```solidity
@@ -489,56 +332,6 @@ function minDstGasLookup(uint16, uint16) external view returns (uint256)
 
 ```solidity
 function minGasToTransferAndStore() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-### mint
-
-```solidity
-function mint(bytes32[] merkleProof) external payable
-```
-
-Mint your ONFT
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| merkleProof | bytes32[] | undefined |
-
-### name
-
-```solidity
-function name() external view returns (string)
-```
-
-
-
-*See {IERC721Metadata-name}.*
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | string | undefined |
-
-### nextMintId
-
-```solidity
-function nextMintId() external view returns (uint256)
 ```
 
 
@@ -581,28 +374,6 @@ function owner() external view returns (address)
 
 *Returns the address of the current owner.*
 
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
-### ownerOf
-
-```solidity
-function ownerOf(uint256 tokenId) external view returns (address)
-```
-
-
-
-*See {IERC721-ownerOf}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| tokenId | uint256 | undefined |
 
 #### Returns
 
@@ -679,67 +450,6 @@ function retryMessage(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, byte
 | _nonce | uint64 | undefined |
 | _payload | bytes | undefined |
 
-### royaltyInfo
-
-```solidity
-function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256)
-```
-
-
-
-*Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of exchange. The royalty amount is denominated and should be paid in that same unit of exchange.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _tokenId | uint256 | undefined |
-| _salePrice | uint256 | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-| _1 | uint256 | undefined |
-
-### safeTransferFrom
-
-```solidity
-function safeTransferFrom(address from, address to, uint256 tokenId) external nonpayable
-```
-
-
-
-*See {IERC721-safeTransferFrom}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| from | address | undefined |
-| to | address | undefined |
-| tokenId | uint256 | undefined |
-
-### safeTransferFrom
-
-```solidity
-function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) external nonpayable
-```
-
-
-
-*See {IERC721-safeTransferFrom}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| from | address | undefined |
-| to | address | undefined |
-| tokenId | uint256 | undefined |
-| data | bytes | undefined |
-
 ### sendBatchFrom
 
 ```solidity
@@ -783,23 +493,6 @@ function sendFrom(address _from, uint16 _dstChainId, bytes _toAddress, uint256 _
 | _refundAddress | address payable | undefined |
 | _zroPaymentAddress | address | undefined |
 | _adapterParams | bytes | undefined |
-
-### setApprovalForAll
-
-```solidity
-function setApprovalForAll(address operator, bool approved) external nonpayable
-```
-
-
-
-*See {IERC721-setApprovalForAll}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| operator | address | undefined |
-| approved | bool | undefined |
 
 ### setConfig
 
@@ -937,22 +630,6 @@ function setReceiveVersion(uint16 _version) external nonpayable
 |---|---|---|
 | _version | uint16 | undefined |
 
-### setRoyaltiesRecipient
-
-```solidity
-function setRoyaltiesRecipient(address newRecipient) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| newRecipient | address | undefined |
-
 ### setSendVersion
 
 ```solidity
@@ -968,22 +645,6 @@ function setSendVersion(uint16 _version) external nonpayable
 | Name | Type | Description |
 |---|---|---|
 | _version | uint16 | undefined |
-
-### setTreeRoot
-
-```solidity
-function setTreeRoot(bytes32 _merkleRoot) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _merkleRoot | bytes32 | undefined |
 
 ### setTrustedRemote
 
@@ -1052,7 +713,7 @@ function supportsInterface(bytes4 interfaceId) external view returns (bool)
 
 
 
-*See {IERC165-supportsInterface}.*
+
 
 #### Parameters
 
@@ -1065,80 +726,6 @@ function supportsInterface(bytes4 interfaceId) external view returns (bool)
 | Name | Type | Description |
 |---|---|---|
 | _0 | bool | undefined |
-
-### symbol
-
-```solidity
-function symbol() external view returns (string)
-```
-
-
-
-*See {IERC721Metadata-symbol}.*
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | string | undefined |
-
-### tokenURI
-
-```solidity
-function tokenURI(uint256 tokenId) external view returns (string)
-```
-
-
-
-*See {IERC721Metadata-tokenURI}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| tokenId | uint256 | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | string | undefined |
-
-### totalSupply
-
-```solidity
-function totalSupply() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-### transferFrom
-
-```solidity
-function transferFrom(address from, address to, uint256 tokenId) external nonpayable
-```
-
-
-
-*See {IERC721-transferFrom}.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| from | address | undefined |
-| to | address | undefined |
-| tokenId | uint256 | undefined |
 
 ### transferOwnership
 
@@ -1181,42 +768,6 @@ function trustedRemoteLookup(uint16) external view returns (bytes)
 
 
 ## Events
-
-### Approval
-
-```solidity
-event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| owner `indexed` | address | undefined |
-| approved `indexed` | address | undefined |
-| tokenId `indexed` | uint256 | undefined |
-
-### ApprovalForAll
-
-```solidity
-event ApprovalForAll(address indexed owner, address indexed operator, bool approved)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| owner `indexed` | address | undefined |
-| operator `indexed` | address | undefined |
-| approved  | bool | undefined |
 
 ### CreditCleared
 
@@ -1412,60 +963,6 @@ event SetTrustedRemoteAddress(uint16 _remoteChainId, bytes _remoteAddress)
 |---|---|---|
 | _remoteChainId  | uint16 | undefined |
 | _remoteAddress  | bytes | undefined |
-
-### Transfer
-
-```solidity
-event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| from `indexed` | address | undefined |
-| to `indexed` | address | undefined |
-| tokenId `indexed` | uint256 | undefined |
-
-
-
-## Errors
-
-### PearlClubONFT__AlreadyClaimed
-
-```solidity
-error PearlClubONFT__AlreadyClaimed()
-```
-
-
-
-
-
-
-### PearlClubONFT__FullyMinted
-
-```solidity
-error PearlClubONFT__FullyMinted()
-```
-
-
-
-
-
-
-### PearlClubONFT__NotWhitelisted
-
-```solidity
-error PearlClubONFT__NotWhitelisted()
-```
-
-
-
-
 
 
 

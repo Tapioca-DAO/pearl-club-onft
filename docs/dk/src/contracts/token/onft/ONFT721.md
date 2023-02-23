@@ -1,4 +1,4 @@
-# PearlClubONFT
+# ONFT721
 
 
 
@@ -44,23 +44,6 @@ function FUNCTION_TYPE_SEND() external view returns (uint16)
 |---|---|---|
 | _0 | uint16 | undefined |
 
-### ROYALITY_FEE
-
-```solidity
-function ROYALITY_FEE() external view returns (uint96)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint96 | undefined |
-
 ### approve
 
 ```solidity
@@ -99,28 +82,6 @@ function balanceOf(address owner) external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
-
-### claimed
-
-```solidity
-function claimed(address) external view returns (bool)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | undefined |
 
 ### clearCredits
 
@@ -428,40 +389,6 @@ function lzReceive(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _
 | _nonce | uint64 | undefined |
 | _payload | bytes | undefined |
 
-### maxMintId
-
-```solidity
-function maxMintId() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-### merkleRoot
-
-```solidity
-function merkleRoot() external view returns (bytes32)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bytes32 | undefined |
-
 ### minDstGasLookup
 
 ```solidity
@@ -502,22 +429,6 @@ function minGasToTransferAndStore() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### mint
-
-```solidity
-function mint(bytes32[] merkleProof) external payable
-```
-
-Mint your ONFT
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| merkleProof | bytes32[] | undefined |
-
 ### name
 
 ```solidity
@@ -534,23 +445,6 @@ function name() external view returns (string)
 | Name | Type | Description |
 |---|---|---|
 | _0 | string | undefined |
-
-### nextMintId
-
-```solidity
-function nextMintId() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
 
 ### nonblockingLzReceive
 
@@ -678,30 +572,6 @@ function retryMessage(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, byte
 | _srcAddress | bytes | undefined |
 | _nonce | uint64 | undefined |
 | _payload | bytes | undefined |
-
-### royaltyInfo
-
-```solidity
-function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256)
-```
-
-
-
-*Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of exchange. The royalty amount is denominated and should be paid in that same unit of exchange.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _tokenId | uint256 | undefined |
-| _salePrice | uint256 | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-| _1 | uint256 | undefined |
 
 ### safeTransferFrom
 
@@ -937,22 +807,6 @@ function setReceiveVersion(uint16 _version) external nonpayable
 |---|---|---|
 | _version | uint16 | undefined |
 
-### setRoyaltiesRecipient
-
-```solidity
-function setRoyaltiesRecipient(address newRecipient) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| newRecipient | address | undefined |
-
 ### setSendVersion
 
 ```solidity
@@ -968,22 +822,6 @@ function setSendVersion(uint16 _version) external nonpayable
 | Name | Type | Description |
 |---|---|---|
 | _version | uint16 | undefined |
-
-### setTreeRoot
-
-```solidity
-function setTreeRoot(bytes32 _merkleRoot) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _merkleRoot | bytes32 | undefined |
 
 ### setTrustedRemote
 
@@ -1052,7 +890,7 @@ function supportsInterface(bytes4 interfaceId) external view returns (bool)
 
 
 
-*See {IERC165-supportsInterface}.*
+
 
 #### Parameters
 
@@ -1104,23 +942,6 @@ function tokenURI(uint256 tokenId) external view returns (string)
 | Name | Type | Description |
 |---|---|---|
 | _0 | string | undefined |
-
-### totalSupply
-
-```solidity
-function totalSupply() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
 
 ### transferFrom
 
@@ -1430,42 +1251,6 @@ event Transfer(address indexed from, address indexed to, uint256 indexed tokenId
 | from `indexed` | address | undefined |
 | to `indexed` | address | undefined |
 | tokenId `indexed` | uint256 | undefined |
-
-
-
-## Errors
-
-### PearlClubONFT__AlreadyClaimed
-
-```solidity
-error PearlClubONFT__AlreadyClaimed()
-```
-
-
-
-
-
-
-### PearlClubONFT__FullyMinted
-
-```solidity
-error PearlClubONFT__FullyMinted()
-```
-
-
-
-
-
-
-### PearlClubONFT__NotWhitelisted
-
-```solidity
-error PearlClubONFT__NotWhitelisted()
-```
-
-
-
-
 
 
 
