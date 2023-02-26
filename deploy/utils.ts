@@ -17,7 +17,7 @@ export function getChainParams(chainName: string): { startMintID: number; endMin
 
         // mainnets
         case 'arbitrum':
-            return { startMintID: 1, endMintID: 1000, metadata: 'arb', minGas: 350000 }
+            return { startMintID: 1, endMintID: 2000, metadata: 'arb', minGas: 350000 }
         case 'ethereum':
             return { startMintID: 0, endMintID: 0, metadata: 'eth', minGas: 350000 }
         case 'optimism':
