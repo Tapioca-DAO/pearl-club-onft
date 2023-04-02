@@ -37,6 +37,25 @@ const config: HardhatUserConfig & { dodoc?: any } = {
     namedAccounts: {
         deployer: 0,
     },
+    preprocess: {
+        eachLine: (hre) => ({
+          transform: (line: string) => {
+            if (line.match(/^\s*import /i)) {
+              for (const [from, to] of getRemappings()) {
+                if (line.includes(from)) {
+                  line = line.replace(from, to);
+                  break;
+                }
+              }
+            }
+            return line;
+          },
+        }),
+      },
+      paths: {
+        sources: "./src",
+        cache: "./cache_hardhat",
+      },
     solidity: {
         compilers: [
             {

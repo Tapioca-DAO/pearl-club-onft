@@ -6,38 +6,29 @@ import {ERC2981} from '@openzeppelin/contracts/token/common/ERC2981.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {ONFT721} from 'tapioca-sdk/src/contracts/token/onft/ONFT721.sol';
 import {MerkleProof} from '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
+import {DefaultOperatorFilterer} from "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 
 // TODO: Revert to ERC721
-contract PearlClubONFT is ONFT721, ERC2981 {
-    string private baseURI;
+contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
 
-    uint public nextMintId;
-    uint public maxMintId;
+    uint256 public nextMintId;
     bytes32 public merkleRoot;
 
+    uint256 public immutable MAX_MINT_ID;
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
 
     // errors
-    error PearlClubONFT__NotWhitelisted();
     error PearlClubONFT__AlreadyClaimed();
+    error PearlClubONFT__CallerIsNotOwnerOrApproved();
+    error PearlClubONFT__FromAddressDoesNotOwnToken();
     error PearlClubONFT__FullyMinted();
+    error PearlClubONFT__NotWhitelisted();
+    error PearlClubONFT__TokenNotAvailableToMint();
 
-    // mapping(address => bool) isWhitelisted;
+    string private baseURI;
     mapping(address => bool) public claimed;
 
-    modifier onlyWhitelisted(bytes32[] calldata merkleProof) {
-        if (
-            !MerkleProof.verify(merkleProof, merkleRoot, _toBytes32(msg.sender))
-        ) revert PearlClubONFT__NotWhitelisted();
-        _;
-    }
-
-    modifier onlyOnce() {
-        if (claimed[msg.sender]) revert PearlClubONFT__AlreadyClaimed();
-        claimed[msg.sender] = true;
-        _;
-    }
 
     /// @param _layerZeroEndpoint handles message transmission across chains
     /// @param _startMintId the starting mint number on this chain
@@ -45,13 +36,15 @@ contract PearlClubONFT is ONFT721, ERC2981 {
     constructor(
         address _layerZeroEndpoint,
         string memory __baseURI,
-        uint _startMintId,
-        uint _endMintId,
-        uint256 _minGas
+        uint256 _startMintId,
+        uint256 _endMintId,
+        uint256 _minGas,
+        address royaltyReceiver
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         nextMintId = _startMintId;
-        maxMintId = _endMintId;
+        MAX_MINT_ID = _endMintId;
+        _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
     }
 
     function setTreeRoot(bytes32 _merkleRoot) external onlyOwner {
@@ -61,12 +54,21 @@ contract PearlClubONFT is ONFT721, ERC2981 {
     /// @notice Mint your ONFT
     function mint(
         bytes32[] calldata merkleProof
-    ) external payable onlyWhitelisted(merkleProof) onlyOnce {
-        if (nextMintId > maxMintId) revert PearlClubONFT__FullyMinted();
-        uint256 newId = nextMintId;
-        nextMintId++;
+    ) external payable {
+        if (nextMintId > MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
+        if (claimed[_msgSender()]) revert PearlClubONFT__AlreadyClaimed();
+        if (
+            !MerkleProof.verify(merkleProof, merkleRoot, bytes32(uint256(uint160(_msgSender()))))
+        ) revert PearlClubONFT__NotWhitelisted();
 
-        _creditTo(0, msg.sender, newId);
+        claimed[_msgSender()] = true;
+        uint256 newId = nextMintId;
+
+        unchecked{
+            ++nextMintId;
+        }
+
+        _creditTo(0, _msgSender(), newId);
     }
 
     function setRoyaltiesRecipient(address newRecipient) external onlyOwner {
@@ -93,16 +95,17 @@ contract PearlClubONFT is ONFT721, ERC2981 {
         bytes memory,
         uint _tokenId
     ) internal virtual override {
-        require(
-            _isApprovedOrOwner(_msgSender(), _tokenId),
-            'ONFT721: send caller is not owner nor approved'
-        );
-        require(
-            ERC721.ownerOf(_tokenId) == _from,
-            'ONFT721: send from incorrect owner'
-        );
+        if(!_isApprovedOrOwner(_msgSender(), _tokenId)) {
+            revert PearlClubONFT__CallerIsNotOwnerOrApproved();
+        }
+        if(ERC721.ownerOf(_tokenId) != _from) {
+            revert PearlClubONFT__FromAddressDoesNotOwnToken();
+        }
+
         _transfer(_from, address(this), _tokenId);
-        totalSupply--;
+        unchecked {
+            --totalSupply;
+        }
     }
 
     function _creditTo(
@@ -110,19 +113,41 @@ contract PearlClubONFT is ONFT721, ERC2981 {
         address _toAddress,
         uint _tokenId
     ) internal virtual override {
-        require(
-            !_exists(_tokenId) ||
-                (_exists(_tokenId) && ERC721.ownerOf(_tokenId) == address(this))
-        );
+        if(_exists(_tokenId) && ERC721.ownerOf(_tokenId) != address(this)) {
+            revert PearlClubONFT__TokenNotAvailableToMint();
+        }
         if (!_exists(_tokenId)) {
-            _safeMint(_toAddress, _tokenId);
+            _mint(_toAddress, _tokenId);
         } else {
             _transfer(address(this), _toAddress, _tokenId);
         }
-        totalSupply++;
+        unchecked {
+            ++totalSupply;
+        }
     }
 
-    function _toBytes32(address addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(addr)));
+    // --------Blacklist Overrides--------//
+    function setApprovalForAll(address operator, bool approved) public override (ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
+        super.setApprovalForAll(operator, approved);
+    }
+
+    function approve(address operator, uint256 tokenId) public override (ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
+        super.approve(operator, tokenId);
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public override (ERC721, IERC721) onlyAllowedOperator(from) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override (ERC721, IERC721) onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
+        public
+        override (ERC721, IERC721)
+        onlyAllowedOperator(from)
+    {
+        super.safeTransferFrom(from, to, tokenId, data);
     }
 }

@@ -9,3 +9,6 @@ tree.json
 cache
 artifacts
 
+# Foundry Files
+out/
+forge-cache/
