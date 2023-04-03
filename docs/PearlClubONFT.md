@@ -44,6 +44,40 @@ function FUNCTION_TYPE_SEND() external view returns (uint16)
 |---|---|---|
 | _0 | uint16 | undefined |
 
+### MAX_MINT_ID
+
+```solidity
+function MAX_MINT_ID() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
+### OPERATOR_FILTER_REGISTRY
+
+```solidity
+function OPERATOR_FILTER_REGISTRY() external view returns (contract IOperatorFilterRegistry)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | contract IOperatorFilterRegistry | undefined |
+
 ### ROYALITY_FEE
 
 ```solidity
@@ -64,18 +98,18 @@ function ROYALITY_FEE() external view returns (uint96)
 ### approve
 
 ```solidity
-function approve(address to, uint256 tokenId) external nonpayable
+function approve(address operator, uint256 tokenId) external nonpayable
 ```
 
 
 
-*See {IERC721-approve}.*
+
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| to | address | undefined |
+| operator | address | undefined |
 | tokenId | uint256 | undefined |
 
 ### balanceOf
@@ -428,23 +462,6 @@ function lzReceive(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _
 | _nonce | uint64 | undefined |
 | _payload | bytes | undefined |
 
-### maxMintId
-
-```solidity
-function maxMintId() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
 ### merkleRoot
 
 ```solidity
@@ -711,7 +728,7 @@ function safeTransferFrom(address from, address to, uint256 tokenId) external no
 
 
 
-*See {IERC721-safeTransferFrom}.*
+
 
 #### Parameters
 
@@ -729,7 +746,7 @@ function safeTransferFrom(address from, address to, uint256 tokenId, bytes data)
 
 
 
-*See {IERC721-safeTransferFrom}.*
+
 
 #### Parameters
 
@@ -792,7 +809,7 @@ function setApprovalForAll(address operator, bool approved) external nonpayable
 
 
 
-*See {IERC721-setApprovalForAll}.*
+
 
 #### Parameters
 
@@ -1130,7 +1147,7 @@ function transferFrom(address from, address to, uint256 tokenId) external nonpay
 
 
 
-*See {IERC721-transferFrom}.*
+
 
 #### Parameters
 
@@ -1434,6 +1451,22 @@ event Transfer(address indexed from, address indexed to, uint256 indexed tokenId
 
 
 ## Errors
+
+### OperatorNotAllowed
+
+```solidity
+error OperatorNotAllowed(address operator)
+```
+
+
+
+*Emitted when an operator is not allowed.*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| operator | address | undefined |
 
 ### PearlClubONFT__AlreadyClaimed
 

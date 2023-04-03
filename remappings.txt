@@ -1,0 +1,8 @@
+@openzeppelin/=node_modules/@openzeppelin/
+eth-gas-reporter/=node_modules/eth-gas-reporter/
+hardhat-deploy/=node_modules/hardhat-deploy/
+hardhat/=node_modules/hardhat/
+operator-filter-registry/=node_modules/operator-filter-registry/
+tapioca-sdk/=node_modules/tapioca-sdk/
+forge-std/=lib/forge-std/src/
+murky/=lib/murky/src/
