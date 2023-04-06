@@ -5,6 +5,7 @@ coverage.json
 typechain
 typechain-types
 tree.json
+.DS_Store
 # Hardhat files
 cache
 artifacts
@@ -12,3 +13,7 @@ artifacts
 # Foundry Files
 out/
 forge-cache/
+
+# Coverage files
+lcov.info
+report/
