@@ -3,76 +3,118 @@ pragma solidity ^0.8.17;
 import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {ERC2981} from '@openzeppelin/contracts/token/common/ERC2981.sol';
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {ONFT721} from 'tapioca-sdk/src/contracts/token/onft/ONFT721.sol';
 import {MerkleProof} from '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 import {DefaultOperatorFilterer} from "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 
-// TODO: Revert to ERC721
 contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
+    uint256 public nextTokenID = 1;
 
-    uint256 public nextMintId;
-    bytes32 public merkleRoot;
-
+    bytes32 public immutable PHASE_1_ROOT;
+    bytes32 public immutable PHASE_2_ROOT;
     uint256 public immutable MAX_MINT_ID;
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
+    /// @notice Phase of the whitelist - 0 = inactive, 1 = phase 1, 2 = phase 2, 3 = decommissioned
+    uint8 public phase;
 
     // errors
     error PearlClubONFT__AlreadyClaimed();
-    error PearlClubONFT__CallerIsNotOwnerOrApproved();
-    error PearlClubONFT__FromAddressDoesNotOwnToken();
+    error PearlClubONFT__CannotUseOldPhase();
+    error PearlClubONFT__ClaimNotActive();
     error PearlClubONFT__FullyMinted();
-    error PearlClubONFT__NotWhitelisted();
-    error PearlClubONFT__TokenNotAvailableToMint();
+    error PearlClubONFT__InvalidProof();
 
     string private baseURI;
     mapping(address => bool) public claimed;
 
+    event PhaseActivated(uint8 phase);
+    event ClaimsDeactivated();
 
     /// @param _layerZeroEndpoint handles message transmission across chains
-    /// @param _startMintId the starting mint number on this chain
+    /// @param __baseURI URI endpoint to query metadata
     /// @param _endMintId the max number of mints on this chain
+    /// @param _minGas min amount of gas required to transfer, and also store the payload
+    /// @param royaltyReceiver address of the receipient of royalties
+    /// @param _phase1Root First phase merkle root
+    /// @param _phase2Root Second phase merkle root
     constructor(
         address _layerZeroEndpoint,
         string memory __baseURI,
-        uint256 _startMintId,
         uint256 _endMintId,
         uint256 _minGas,
-        address royaltyReceiver
+        address royaltyReceiver,
+        bytes32 _phase1Root,
+        bytes32 _phase2Root
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
-        nextMintId = _startMintId;
         MAX_MINT_ID = _endMintId;
+        PHASE_1_ROOT = _phase1Root;
+        PHASE_2_ROOT = _phase2Root;
         _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
-    }
-
-    function setTreeRoot(bytes32 _merkleRoot) external onlyOwner {
-        merkleRoot = _merkleRoot;
     }
 
     /// @notice Mint your ONFT
     function mint(
         bytes32[] calldata merkleProof
-    ) external payable {
-        if (nextMintId > MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
+    ) external {
+        if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
         if (claimed[_msgSender()]) revert PearlClubONFT__AlreadyClaimed();
+        if (phase == 0 || phase > 2) revert PearlClubONFT__ClaimNotActive();
+
         if (
-            !MerkleProof.verify(merkleProof, merkleRoot, bytes32(uint256(uint160(_msgSender()))))
-        ) revert PearlClubONFT__NotWhitelisted();
+            !MerkleProof.verify(merkleProof, merkleRoot(), bytes32(uint256(uint160(_msgSender()))))
+        ) revert PearlClubONFT__InvalidProof();
 
         claimed[_msgSender()] = true;
-        uint256 newId = nextMintId;
 
+        uint256 newID = nextTokenID;
+      
         unchecked{
-            ++nextMintId;
+            ++nextTokenID;
+            ++totalSupply;
         }
 
-        _creditTo(0, _msgSender(), newId);
+        _mint(_msgSender(), newID);
     }
 
+    /// @notice Update the royalty recipient
     function setRoyaltiesRecipient(address newRecipient) external onlyOwner {
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
+    }
+
+    /// @notice Activate the first phase merkle whitelist
+    function activatePhase1() external onlyOwner {
+        if (phase >= 1) {
+            revert PearlClubONFT__CannotUseOldPhase();
+        }
+        phase = 1;
+        emit PhaseActivated(phase);
+    }
+
+    /// @notice Activate the second phase merkle whitelist
+    function activatePhase2() external onlyOwner {
+        if (phase >= 2) {
+            revert PearlClubONFT__CannotUseOldPhase();
+        }
+        phase = 2;
+        emit PhaseActivated(phase);
+    }
+
+    /// @notice Deactivates the claims system
+    function deactivateClaims() external onlyOwner {
+        phase = 3;
+        emit ClaimsDeactivated();
+    }
+
+    /// @notice returns the current active merkle root
+    function merkleRoot() public view returns (bytes32){
+        if(phase == 1) {
+            return PHASE_1_ROOT;
+        } else if (phase == 2) {
+            return PHASE_2_ROOT;
+        }
+        return 0;
     }
 
     /**
@@ -84,46 +126,9 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         return super.supportsInterface(interfaceId);
     }
 
+    /// @dev Returns the initialized base URI
     function _baseURI() internal view override returns (string memory) {
         return baseURI;
-    }
-
-    // --------Internal functions--------//
-    function _debitFrom(
-        address _from,
-        uint16,
-        bytes memory,
-        uint _tokenId
-    ) internal virtual override {
-        if(!_isApprovedOrOwner(_msgSender(), _tokenId)) {
-            revert PearlClubONFT__CallerIsNotOwnerOrApproved();
-        }
-        if(ERC721.ownerOf(_tokenId) != _from) {
-            revert PearlClubONFT__FromAddressDoesNotOwnToken();
-        }
-
-        _transfer(_from, address(this), _tokenId);
-        unchecked {
-            --totalSupply;
-        }
-    }
-
-    function _creditTo(
-        uint16,
-        address _toAddress,
-        uint _tokenId
-    ) internal virtual override {
-        if(_exists(_tokenId) && ERC721.ownerOf(_tokenId) != address(this)) {
-            revert PearlClubONFT__TokenNotAvailableToMint();
-        }
-        if (!_exists(_tokenId)) {
-            _mint(_toAddress, _tokenId);
-        } else {
-            _transfer(address(this), _toAddress, _tokenId);
-        }
-        unchecked {
-            ++totalSupply;
-        }
     }
 
     // --------Blacklist Overrides--------//
