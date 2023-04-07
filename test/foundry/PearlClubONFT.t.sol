@@ -72,6 +72,22 @@ contract TestPearlClubONFT is Test {
         root2 = m.getRoot(data2);
     }
 
+    function testClaimWrongChain(uint256 nonce, bytes32 sample) public {
+        vm.assume(nonce < 10000);
+
+        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
+        pearlClub.activatePhase1();
+
+        vm.chainId(1);
+        vm.startPrank(receivers[0]);
+        bytes32[] memory proof;
+        proof = m.getProof(data, 0);
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__InvalidMintingChain.selector);
+        pearlClub.mint(proof);
+        vm.stopPrank();
+   }
+
    function testClaimFirstRoot(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
         
