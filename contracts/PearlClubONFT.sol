@@ -43,13 +43,13 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @param _phase2Root Second phase merkle root
     constructor(
         address _layerZeroEndpoint,
-        uint256 _chainId,
         string memory __baseURI,
         uint256 _endMintId,
         uint256 _minGas,
         address royaltyReceiver,
         bytes32 _phase1Root,
-        bytes32 _phase2Root
+        bytes32 _phase2Root,
+        uint256 _chainId
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         MAX_MINT_ID = _endMintId;
