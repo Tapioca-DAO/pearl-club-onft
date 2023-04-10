@@ -6,8 +6,12 @@ import { mint__task } from './tasks/mint';
 import { getProof__task } from './tasks/getProof';
 import { getPassPhrase__task } from './tasks/getPassPhrase';
 import { generatePassPhrases__task } from './tasks/generatePassPhrases';
+import { generateMerkleTree__task } from "./tasks/generateMerkleTree";
 
 task('setTreeRoot', 'Updates whitelist', setTreeRoot__task);
+
+task('generateMerkleTree', 'Generates the merkle tree without initializing for initial setup', generateMerkleTree__task)
+    .addParam('phase', 'Phase of the whitelist to generate the merkle tree for');
 
 task('setTrustedRemote', 'Enables contracts to interact using LayerZero', setTrustedRemote__task)
     .addParam('dstchain', 'Name of target chain').addOptionalParam('dstcontract', 'Address of target contract');

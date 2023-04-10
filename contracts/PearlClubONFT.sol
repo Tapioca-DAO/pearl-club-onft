@@ -18,11 +18,14 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @notice Phase of the whitelist - 0 = inactive, 1 = phase 1, 2 = phase 2, 3 = decommissioned
     uint8 public phase;
 
+    uint256 private immutable CHAIN_ID;
+
     // errors
     error PearlClubONFT__AlreadyClaimed();
     error PearlClubONFT__CannotUseOldPhase();
     error PearlClubONFT__ClaimNotActive();
     error PearlClubONFT__FullyMinted();
+    error PearlClubONFT__InvalidMintingChain();
     error PearlClubONFT__InvalidProof();
 
     string private baseURI;
@@ -45,12 +48,14 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         uint256 _minGas,
         address royaltyReceiver,
         bytes32 _phase1Root,
-        bytes32 _phase2Root
+        bytes32 _phase2Root,
+        uint256 _chainId
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         MAX_MINT_ID = _endMintId;
         PHASE_1_ROOT = _phase1Root;
         PHASE_2_ROOT = _phase2Root;
+        CHAIN_ID = _chainId;
         _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
     }
 
@@ -61,6 +66,12 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
         if (claimed[_msgSender()]) revert PearlClubONFT__AlreadyClaimed();
         if (phase == 0 || phase > 2) revert PearlClubONFT__ClaimNotActive();
+
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        if (id != CHAIN_ID) revert PearlClubONFT__InvalidMintingChain();
 
         if (
             !MerkleProof.verify(merkleProof, merkleRoot(), bytes32(uint256(uint160(_msgSender()))))
