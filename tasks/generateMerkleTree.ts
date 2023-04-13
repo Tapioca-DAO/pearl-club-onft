@@ -1,16 +1,16 @@
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
-const { merkleWhitelistAddresses1, merkleWhitelistAddresses2 } = require('./merkle-root-config');
+const { merkleWhitelistAddresses1, merkleWhitelistAddresses2 } = require('../merkle-root-config');
 var fs = require('fs');
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 
 export const generateMerkleTree__task = async (
-    taskArgs: { phase: number },
+    taskArgs: { phase: string },
     hre: HardhatRuntimeEnvironment,
 ) => {
   const { ethers } = hre;
-  const merkleWhitelistAddresses = taskArgs.phase === 2 ? merkleWhitelistAddresses2 : merkleWhitelistAddresses1;
+  const merkleWhitelistAddresses = taskArgs.phase === "2" ? merkleWhitelistAddresses2 : merkleWhitelistAddresses1;
   console.log("Generating merkle tree for accounts:", merkleWhitelistAddresses);
 
   for (let i = 0; i < merkleWhitelistAddresses.length; i++) {
@@ -28,7 +28,7 @@ export const generateMerkleTree__task = async (
     for(let i = 0; i < merkleWhitelistAddresses.length; i++) {
       //@ts-ignore
         merkleJson[merkleWhitelistAddresses[i]] = {
-            "proof": merkleTree.getHexProof(ethers.utils.solidityKeccak256(["address", "uint256"], [merkleWhitelistAddresses[i], 1]))
+            "proof": merkleTree.getHexProof(ethers.utils.solidityKeccak256(["address"], [merkleWhitelistAddresses[i]]))
         }
     }
 
