@@ -1,0 +1,22 @@
+{
+  "root": "0x850f695ff775f6216afa93d90aeff8d86bb1686fba6f42fa119e66e9b5dc7644",
+  "tree": {
+    "0x4e897BDC9d5e4Fb260e683781b02b3F66Ff31d9B": {
+      "proof": [
+        "0xe0ec4f794c583974290b85aa82d26a65611f23270d5d8fd60fd95aaacc01690a",
+        "0x8aff27c2ee3d1a3937bf6858408c1085e7c5b13ebfc889294128bee1d862814d"
+      ]
+    },
+    "0xD2472A100283Ed0d71Fb63d518B799F3Aa5E5e4e": {
+      "proof": [
+        "0xc092559004f5d534122f896115e80d6d6b2da15ade3b1759006d62255588a799",
+        "0x8aff27c2ee3d1a3937bf6858408c1085e7c5b13ebfc889294128bee1d862814d"
+      ]
+    },
+    "0xac426a365C1801c1a8039655796a0Ff87FD7388C": {
+      "proof": [
+        "0xd86225bf8178f4d492da2fd666082cf7f72be08c88a2859fe430fa9718273b59"
+      ]
+    }
+  }
+}

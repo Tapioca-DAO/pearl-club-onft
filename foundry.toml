@@ -5,4 +5,8 @@ libs = ['node_modules', 'lib']
 test = 'test/foundry'
 cache_path  = 'forge-cache'
 
+[rpc.endpoints]
+mainnet = "${RPC_MAINNET}"
+arb-goerli = "${RPC_ARB_GOERLI}"
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
