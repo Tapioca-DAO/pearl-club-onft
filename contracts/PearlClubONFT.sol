@@ -82,15 +82,14 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     }
 
     /// @notice Update the royalty recipient
-    function setRoyaltiesRecipient(address newRecipient) external onlyOwner {
+    function setRoyaltiesRecipient(address newRecipient) external {
+        _enforceOwner();
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
     }
 
     /// @notice Sets the current merkle root of the contract
     function setMerkleRoot(bytes32 root) public {
-        if(_msgSender() != owner()) {
-            revert PearlClubONFT__OnlyOwner();
-        }
+        _enforceOwner();
         merkleRoot = root;
         emit MerkleRootSet(root);
     }
@@ -107,6 +106,14 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @dev Returns the initialized base URI
     function _baseURI() internal view override returns (string memory) {
         return baseURI;
+    }
+
+    /// @dev Enforces that caller is the owner of the contract 
+    /// @dev More bytecode efficient than modifier for multiple invocations
+    function _enforceOwner() private view {
+        if(_msgSender() != owner()) {
+            revert PearlClubONFT__OnlyOwner();
+        }
     }
 
     // --------Blacklist Overrides--------//

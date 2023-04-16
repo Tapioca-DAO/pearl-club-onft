@@ -280,4 +280,21 @@ contract TestPearlClubONFT is Test {
         (receiver,) = pearlClub.royaltyInfo(1, 1 ether);
         assertEq(receiver, address(0xdeadbeef));
    }
+
+   function testOwnerFunctions(address badActor, uint256 nonce, bytes32 sample) public {
+        vm.assume(nonce < 10000);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+
+        vm.startPrank(badActor);
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__OnlyOwner.selector);
+        pearlClub.setMerkleRoot(root1);
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__OnlyOwner.selector);
+        pearlClub.setRoyaltiesRecipient(badActor);
+        vm.stopPrank();
+
+        assertEq(pearlClub.merkleRoot(), 0);
+
+   }
 }
