@@ -7,6 +7,7 @@ typechain-types
 tree.json
 .DS_Store
 test-accounts.json
+
 # Hardhat files
 cache
 artifacts

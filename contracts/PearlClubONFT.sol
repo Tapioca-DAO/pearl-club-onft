@@ -11,8 +11,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
     uint256 public nextTokenID = 1;
 
-    bytes32 public immutable PHASE_1_ROOT;
-    bytes32 public immutable PHASE_2_ROOT;
+    bytes32 public merkleRoot;
     uint256 public immutable MAX_MINT_ID;
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
     /// @notice Phase of the whitelist - 0 = inactive, 1 = phase 1, 2 = phase 2, 3 = decommissioned
@@ -22,39 +21,32 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
 
     // errors
     error PearlClubONFT__AlreadyClaimed();
-    error PearlClubONFT__CannotUseOldPhase();
     error PearlClubONFT__ClaimNotActive();
     error PearlClubONFT__FullyMinted();
     error PearlClubONFT__InvalidMintingChain();
     error PearlClubONFT__InvalidProof();
+    error PearlClubONFT__OnlyOwner();
 
     string private baseURI;
     mapping(address => bool) public claimed;
 
-    event PhaseActivated(uint8 phase);
-    event ClaimsDeactivated();
+    event MerkleRootSet(bytes32 root);
 
     /// @param _layerZeroEndpoint handles message transmission across chains
     /// @param __baseURI URI endpoint to query metadata
     /// @param _endMintId the max number of mints on this chain
     /// @param _minGas min amount of gas required to transfer, and also store the payload
     /// @param royaltyReceiver address of the receipient of royalties
-    /// @param _phase1Root First phase merkle root
-    /// @param _phase2Root Second phase merkle root
     constructor(
         address _layerZeroEndpoint,
         string memory __baseURI,
         uint256 _endMintId,
         uint256 _minGas,
         address royaltyReceiver,
-        bytes32 _phase1Root,
-        bytes32 _phase2Root,
         uint256 _chainId
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         MAX_MINT_ID = _endMintId;
-        PHASE_1_ROOT = _phase1Root;
-        PHASE_2_ROOT = _phase2Root;
         CHAIN_ID = _chainId;
         _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
     }
@@ -65,7 +57,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     ) external {
         if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
         if (claimed[_msgSender()]) revert PearlClubONFT__AlreadyClaimed();
-        if (phase == 0 || phase > 2) revert PearlClubONFT__ClaimNotActive();
+        if (merkleRoot == bytes32(0)) revert PearlClubONFT__ClaimNotActive();
 
         uint256 id;
         assembly {
@@ -74,7 +66,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         if (id != CHAIN_ID) revert PearlClubONFT__InvalidMintingChain();
 
         if (
-            !MerkleProof.verify(merkleProof, merkleRoot(), bytes32(uint256(uint160(_msgSender()))))
+            !MerkleProof.verify(merkleProof, merkleRoot, bytes32(uint256(uint160(_msgSender()))))
         ) revert PearlClubONFT__InvalidProof();
 
         claimed[_msgSender()] = true;
@@ -94,38 +86,13 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
     }
 
-    /// @notice Activate the first phase merkle whitelist
-    function activatePhase1() external onlyOwner {
-        if (phase >= 1) {
-            revert PearlClubONFT__CannotUseOldPhase();
+    /// @notice Sets the current merkle root of the contract
+    function setMerkleRoot(bytes32 root) public {
+        if(_msgSender() != owner()) {
+            revert PearlClubONFT__OnlyOwner();
         }
-        phase = 1;
-        emit PhaseActivated(phase);
-    }
-
-    /// @notice Activate the second phase merkle whitelist
-    function activatePhase2() external onlyOwner {
-        if (phase >= 2) {
-            revert PearlClubONFT__CannotUseOldPhase();
-        }
-        phase = 2;
-        emit PhaseActivated(phase);
-    }
-
-    /// @notice Deactivates the claims system
-    function deactivateClaims() external onlyOwner {
-        phase = 3;
-        emit ClaimsDeactivated();
-    }
-
-    /// @notice returns the current active merkle root
-    function merkleRoot() public view returns (bytes32){
-        if(phase == 1) {
-            return PHASE_1_ROOT;
-        } else if (phase == 2) {
-            return PHASE_2_ROOT;
-        }
-        return 0;
+        merkleRoot = root;
+        emit MerkleRootSet(root);
     }
 
     /**

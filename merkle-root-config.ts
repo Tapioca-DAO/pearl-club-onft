@@ -1,7 +1,8 @@
 export const merkleWhitelistAddresses1 = [
     "0x4e897BDC9d5e4Fb260e683781b02b3F66Ff31d9B",
     "0xD2472A100283Ed0d71Fb63d518B799F3Aa5E5e4e",
-    "0xac426a365C1801c1a8039655796a0Ff87FD7388C"
+    "0xac426a365C1801c1a8039655796a0Ff87FD7388C",
+    "0x38C9f634CCA7005705Ce2301f1529087a200aF47"
 ]
 
 export const merkleWhitelistAddresses2 = [

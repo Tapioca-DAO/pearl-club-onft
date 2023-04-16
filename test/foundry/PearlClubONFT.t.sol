@@ -36,22 +36,8 @@ contract TestPearlClubONFT is Test {
     return id;
    }
 
-   function testDeployment(uint256 nonce, bytes32 sample) public {
-       vm.assume(nonce < 10000);
-
-        for (uint256 i = 0; i < 10; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
-            data.push(bytes32(uint256(uint160(receivers[i]))));
-            ++nonce;
-            receivers2.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
-            data2.push(bytes32(uint256(uint160(receivers2[i]))));
-            ++nonce;
-        }
-
-        bytes32 root1 = m.getRoot(data);
-        bytes32 root2 = m.getRoot(data2);
-
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
+   function testDeployment() public {
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
         assertEq(pearlClub.totalSupply(), 0);
         assertEq(pearlClub.merkleRoot(), 0);
         assert(pearlClub.supportsInterface(type(IONFT721).interfaceId));
@@ -75,9 +61,9 @@ contract TestPearlClubONFT is Test {
     function testClaimWrongChain(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
 
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
 
         vm.chainId(1);
         vm.startPrank(receivers[0]);
@@ -92,8 +78,8 @@ contract TestPearlClubONFT is Test {
         vm.assume(nonce < 10000);
         
         (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
 
         bytes32[] memory proof;
 
@@ -116,7 +102,7 @@ contract TestPearlClubONFT is Test {
         pearlClub.mint(proof);
         vm.stopPrank();
 
-        pearlClub.activatePhase2();
+        pearlClub.setMerkleRoot(root2);
 
         // Users from first root cannot claim after phase 2 activation
         vm.startPrank(receivers[9]);
@@ -138,11 +124,11 @@ contract TestPearlClubONFT is Test {
    function testClaim2ndRoot(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
         
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
+        (, bytes32 root2) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
 
         bytes32[] memory proof;
-        pearlClub.activatePhase2();
+        pearlClub.setMerkleRoot(root2);
 
         for (uint256 i = 0; i < 10; ++i) {
             proof = m.getProof(data2, i);
@@ -157,11 +143,11 @@ contract TestPearlClubONFT is Test {
    function testClaimBadUser(uint256 nonce, bytes32 sample, address badUser) public {
         vm.assume(nonce < 10000);
 
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
         bytes32[] memory proof;
         proof = m.getProof(data, 0);
-        pearlClub.activatePhase1();
+        pearlClub.setMerkleRoot(root1);
 
         vm.startPrank(badUser);
         vm.expectRevert(PearlClubONFT.PearlClubONFT__InvalidProof.selector);
@@ -172,9 +158,9 @@ contract TestPearlClubONFT is Test {
    function testClaimWrongRoot(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
 
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
 
         vm.startPrank(receivers2[0]);
         bytes32[] memory proof;
@@ -187,9 +173,9 @@ contract TestPearlClubONFT is Test {
    function testDoubleClaim(uint256 nonce, bytes32 sample) public {
        vm.assume(nonce < 10000);
         
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
 
         bytes32[] memory proof;
         proof = m.getProof(data, 0);
@@ -204,9 +190,9 @@ contract TestPearlClubONFT is Test {
        vm.assume(nonce < 10000);
        length = bound(length, 2, 100);
 
-       (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, length);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length - 1, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+       (bytes32 root1,) = generateRoots(nonce, sample, length);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length - 1, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
         bytes32[] memory proof;
 
         for (uint256 i = 0; i < length - 1; ++i) {
@@ -225,40 +211,12 @@ contract TestPearlClubONFT is Test {
         vm.stopPrank();
    }
 
-   function testOldPhases(uint256 nonce, bytes32 sample) public {
-        vm.assume(nonce < 10000);
-        
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        
-        vm.expectEmit(true, true, true, true);
-        emit PhaseActivated(uint8(1));
-        pearlClub.activatePhase1();
-
-        vm.expectRevert(PearlClubONFT.PearlClubONFT__CannotUseOldPhase.selector);
-        pearlClub.activatePhase1();
-
-        vm.expectEmit(true, true, true, true);
-        emit PhaseActivated(uint8(2));
-        pearlClub.activatePhase2();
-
-        vm.expectRevert(PearlClubONFT.PearlClubONFT__CannotUseOldPhase.selector);
-        pearlClub.activatePhase1();
-
-        vm.expectRevert(PearlClubONFT.PearlClubONFT__CannotUseOldPhase.selector);
-        pearlClub.activatePhase2();
-
-        vm.expectEmit(true, true, true, true);
-        emit ClaimsDeactivated();
-        pearlClub.deactivateClaims();
-   }
-
    function testBlacklistFunctions(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
         
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
 
         bytes32[] memory proof;
 
@@ -298,9 +256,9 @@ contract TestPearlClubONFT is Test {
    function testUpdateRoyaltiesRecipient(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
         
-        (bytes32 root1, bytes32 root2) = generateRoots(nonce, sample, 10);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), root1, root2, getCurrentChainId());
-        pearlClub.activatePhase1();
+        (bytes32 root1,) = generateRoots(nonce, sample, 10);
+        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), getCurrentChainId());
+        pearlClub.setMerkleRoot(root1);
 
         bytes32[] memory proof;
 
