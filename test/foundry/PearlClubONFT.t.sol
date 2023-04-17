@@ -72,6 +72,22 @@ contract TestPearlClubONFT is Test {
         root2 = m.getRoot(data2);
     }
 
+    function testGenerateRoots() public {
+        receivers.push(0x4e897BDC9d5e4Fb260e683781b02b3F66Ff31d9B);
+        receivers.push(0xD2472A100283Ed0d71Fb63d518B799F3Aa5E5e4e);
+        receivers.push(0xac426a365C1801c1a8039655796a0Ff87FD7388C);
+        receivers.push(0x22076fba2ea9650a028Aa499d0444c4Aa9aF1Bf8);
+        receivers.push(0x763D405278D7532548fb2804dD6A7d7943213b6D);
+        receivers.push(0xC3aef76B87539387B84CFfDA1b93A674f126deb0);
+        receivers.push(0x86C73B2E0CB8E4b1272f8DAaaca0e7e8B6143be6);
+        receivers.push(0x9e5dAE0318402a7D3909a315C5A4D68e6aC081E8);
+        for (uint256 i = 0; i < receivers.length; ++i) {
+            data.push(bytes32(uint256(uint160(receivers[i]))));
+        }
+        bytes32 root = m.getRoot(data);
+        assertEq(root, 0x0651b86fc218bd74cbe64eafbcc8e436804ed723319855aa8e5003f08f7b11b6);
+    }
+
     function testClaimWrongChain(uint256 nonce, bytes32 sample) public {
         vm.assume(nonce < 10000);
 

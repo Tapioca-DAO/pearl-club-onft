@@ -17,10 +17,8 @@ export const generateMerkleTree__task = async (
     merkleWhitelistAddresses[i] = ethers.utils.getAddress(merkleWhitelistAddresses[i]);
   }
 
-  const leafNodes = [];
-    for(let i = 0; i < merkleWhitelistAddresses.length; i++) {
-        leafNodes.push(ethers.utils.solidityKeccak256(["address"], [merkleWhitelistAddresses[i]]));
-    }
+  const leafNodes = merkleWhitelistAddresses.map(address => padBuffer(address));
+  console.log(leafNodes)
 
     const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
     let merkleJson = {};
@@ -28,7 +26,7 @@ export const generateMerkleTree__task = async (
     for(let i = 0; i < merkleWhitelistAddresses.length; i++) {
       //@ts-ignore
         merkleJson[merkleWhitelistAddresses[i]] = {
-            "proof": merkleTree.getHexProof(ethers.utils.solidityKeccak256(["address"], [merkleWhitelistAddresses[i]]))
+            "proof": merkleTree.getHexProof(padBuffer(merkleWhitelistAddresses[i]))
         }
     }
 
@@ -56,4 +54,8 @@ export const generateMerkleTree__task = async (
       });
 
       return merkleTreeInfo;
+}
+
+const padBuffer = (addr: string) => {
+  return Buffer.from(addr.substr(2).padStart(32*2, '0'), 'hex')
 }

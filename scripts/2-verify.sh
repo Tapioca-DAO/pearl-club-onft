@@ -12,7 +12,6 @@ echo "royalty receiver: ${ROYALTY_RECEIVER}"
 echo "roots: ${PHASE_1_ROOT} ${PHASE_2_ROOT}"
 echo "chain id: ${CHAIN_ID}"
 
-forge create contracts/PearlClubONFT.sol:PearlClubONFT \
-    --rpc-url ${RPC_ARB_GOERLI} --private-key ${DEPLOYER_KEY} -c ${CHAIN_ID} \
-    --verify \
-    --constructor-args ${ARB_GOERLI_ENDPOINT} ${BASE_URI} ${MAX_SUPPLY} ${MIN_GAS} ${ROYALTY_RECEIVER} ${PHASE_1_ROOT} ${PHASE_2_ROOT} ${CHAIN_ID}
+forge verify-contract ${PEARL_ADDRESS} contracts/PearlClubONFT.sol:PearlClubONFT \
+    -c ${CHAIN_ID} \
+    --constructor-args $(cast abi-encode "constructor(address,string,uint256,uint256,address,bytes32,bytes32,uint256)" ${ARB_GOERLI_ENDPOINT} ${BASE_URI} ${MAX_SUPPLY} ${MIN_GAS} ${ROYALTY_RECEIVER} ${PHASE_1_ROOT} ${PHASE_2_ROOT} ${CHAIN_ID})
