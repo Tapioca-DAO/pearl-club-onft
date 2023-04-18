@@ -15,20 +15,25 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
 
     uint256 private immutable CHAIN_ID;
+    bool public claimsFinalized;
 
     /// @notice Owner controlled account which will mint for users on the whitelist
     /// @dev    This was implemented to prevent trait sniping during mint and enforce a random ID
     address public minter;
 
+    string private baseURI;
+
+    /// @notice Mapping of addresses that are eligible to claim
+    mapping(address => bool) public hasClaimAvailable;
+
     // errors
-    error PearlClubONFT__AlreadyClaimed();
     error PearlClubONFT__CallerNotMinter();
     error PearlClubONFT__CallerNotOwner();
+    error PearlClubONFT__ClaimListFinalized();
+    error PearlClubONFT__ClaimListNotFinalized();
     error PearlClubONFT__FullyMinted();
     error PearlClubONFT__InvalidMintingChain();
-
-    string private baseURI;
-    mapping(address => bool) public claimed;
+    error PearlClubONFT__NoClaimAvailable();
 
     /// @notice Emitted when the minter is updated 
     event MinterSet(address indexed newMinter, address indexed oldMinter);
@@ -63,7 +68,8 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     ) external {
         if (_msgSender() != minter) revert PearlClubONFT__CallerNotMinter();
         if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
-        if (claimed[receiver]) revert PearlClubONFT__AlreadyClaimed();
+        if (!hasClaimAvailable[receiver]) revert PearlClubONFT__NoClaimAvailable();
+        if (!claimsFinalized) revert PearlClubONFT__ClaimListNotFinalized();
 
         uint256 chainId;
         assembly {
@@ -71,7 +77,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         }
         if (chainId != CHAIN_ID) revert PearlClubONFT__InvalidMintingChain();
 
-        claimed[receiver] = true;
+        hasClaimAvailable[receiver] = false;
       
         unchecked{
             ++totalSupply;
@@ -98,6 +104,23 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     function setRoyaltiesRecipient(address newRecipient) external {
         _requireOwner();
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
+    }
+
+    /// @notice Sets the mapping of eligible 
+    function setClaimAvailable(address[] calldata addresses, bool finalize) external {
+        _requireOwner();
+        if(claimsFinalized) revert PearlClubONFT__ClaimListFinalized();
+
+        for (uint i = 0; i < addresses.length;) {
+            hasClaimAvailable[addresses[i]] = true;
+            unchecked {
+                ++i;
+            }
+        }
+
+        if (finalize) {
+            claimsFinalized = true;
+        }
     }
 
     /// @dev Helper function to replace onlyOwner modifier
