@@ -11,121 +11,101 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
     uint256 public nextTokenID = 1;
 
-    bytes32 public immutable PHASE_1_ROOT;
-    bytes32 public immutable PHASE_2_ROOT;
     uint256 public immutable MAX_MINT_ID;
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
-    /// @notice Phase of the whitelist - 0 = inactive, 1 = phase 1, 2 = phase 2, 3 = decommissioned
-    uint8 public phase;
 
     uint256 private immutable CHAIN_ID;
 
+    /// @notice Owner controlled account which will mint for users on the whitelist
+    /// @dev    This was implemented to prevent trait sniping during mint and enforce a random ID
+    address public minter;
+
     // errors
     error PearlClubONFT__AlreadyClaimed();
-    error PearlClubONFT__CannotUseOldPhase();
-    error PearlClubONFT__ClaimNotActive();
+    error PearlClubONFT__CallerNotMinter();
+    error PearlClubONFT__CallerNotOwner();
     error PearlClubONFT__FullyMinted();
     error PearlClubONFT__InvalidMintingChain();
-    error PearlClubONFT__InvalidProof();
 
     string private baseURI;
     mapping(address => bool) public claimed;
 
-    event PhaseActivated(uint8 phase);
-    event ClaimsDeactivated();
+    /// @notice Emitted when the minter is updated 
+    event MinterSet(address indexed newMinter, address indexed oldMinter);
 
-    /// @param _layerZeroEndpoint handles message transmission across chains
-    /// @param __baseURI URI endpoint to query metadata
-    /// @param _endMintId the max number of mints on this chain
-    /// @param _minGas min amount of gas required to transfer, and also store the payload
-    /// @param royaltyReceiver address of the receipient of royalties
-    /// @param _phase1Root First phase merkle root
-    /// @param _phase2Root Second phase merkle root
+    /// @param _layerZeroEndpoint Handles message transmission across chains
+    /// @param __baseURI          URI endpoint to query metadata
+    /// @param _endMintId         The max number of mints on this chain
+    /// @param _minGas            Min amount of gas required to transfer, and also store the payload
+    /// @param royaltyReceiver    Address of the receipient of royalties
+    /// @param _minter            Proxy address allowed to mint for users
+    /// @param _chainId           The base chain ID where mints are allowed to happen
     constructor(
         address _layerZeroEndpoint,
         string memory __baseURI,
         uint256 _endMintId,
         uint256 _minGas,
         address royaltyReceiver,
-        bytes32 _phase1Root,
-        bytes32 _phase2Root,
+        address _minter,
         uint256 _chainId
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         MAX_MINT_ID = _endMintId;
-        PHASE_1_ROOT = _phase1Root;
-        PHASE_2_ROOT = _phase2Root;
         CHAIN_ID = _chainId;
+        minter = _minter;
         _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
     }
 
     /// @notice Mint your ONFT
     function mint(
-        bytes32[] calldata merkleProof
+        address receiver,
+        uint256 id
     ) external {
+        if (_msgSender() != minter) revert PearlClubONFT__CallerNotMinter();
         if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
-        if (claimed[_msgSender()]) revert PearlClubONFT__AlreadyClaimed();
-        if (phase == 0 || phase > 2) revert PearlClubONFT__ClaimNotActive();
+        if (claimed[receiver]) revert PearlClubONFT__AlreadyClaimed();
 
-        uint256 id;
+        uint256 chainId;
         assembly {
-            id := chainid()
+            chainId := chainid()
         }
-        if (id != CHAIN_ID) revert PearlClubONFT__InvalidMintingChain();
+        if (chainId != CHAIN_ID) revert PearlClubONFT__InvalidMintingChain();
 
-        if (
-            !MerkleProof.verify(merkleProof, merkleRoot(), bytes32(uint256(uint160(_msgSender()))))
-        ) revert PearlClubONFT__InvalidProof();
-
-        claimed[_msgSender()] = true;
-
-        uint256 newID = nextTokenID;
+        claimed[receiver] = true;
       
         unchecked{
-            ++nextTokenID;
             ++totalSupply;
         }
 
-        _mint(_msgSender(), newID);
+        _mint(receiver, id);
+    }
+
+    /// @notice Sets the baseURI for the token
+    function setBaseURI(string memory __baseURI) external {
+        _requireOwner();
+        baseURI = __baseURI;
+    }
+
+    /// @notice Sets the whitelisted minter for the contract
+    function setMinter(address newMinter) external {
+        _requireOwner();
+        address oldMinter = minter;
+        minter = newMinter;
+        emit MinterSet(newMinter, oldMinter);
     }
 
     /// @notice Update the royalty recipient
-    function setRoyaltiesRecipient(address newRecipient) external onlyOwner {
+    function setRoyaltiesRecipient(address newRecipient) external {
+        _requireOwner();
         _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
     }
 
-    /// @notice Activate the first phase merkle whitelist
-    function activatePhase1() external onlyOwner {
-        if (phase >= 1) {
-            revert PearlClubONFT__CannotUseOldPhase();
+    /// @dev Helper function to replace onlyOwner modifier
+    /// @dev It is more bytecode efficient to have a function if reused multiple times
+    function _requireOwner() internal view {
+        if(_msgSender() != owner()) {
+            revert PearlClubONFT__CallerNotOwner();
         }
-        phase = 1;
-        emit PhaseActivated(phase);
-    }
-
-    /// @notice Activate the second phase merkle whitelist
-    function activatePhase2() external onlyOwner {
-        if (phase >= 2) {
-            revert PearlClubONFT__CannotUseOldPhase();
-        }
-        phase = 2;
-        emit PhaseActivated(phase);
-    }
-
-    /// @notice Deactivates the claims system
-    function deactivateClaims() external onlyOwner {
-        phase = 3;
-        emit ClaimsDeactivated();
-    }
-
-    /// @notice returns the current active merkle root
-    function merkleRoot() public view returns (bytes32){
-        if(phase == 1) {
-            return PHASE_1_ROOT;
-        } else if (phase == 2) {
-            return PHASE_2_ROOT;
-        }
-        return 0;
     }
 
     /**
