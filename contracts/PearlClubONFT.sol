@@ -131,7 +131,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @dev    The claims list must be finalized before advancing to the next phase
     function activateNextPhase() external {
         _requireOwner();
-        if(phase == 2) revert PearlClubONFT__OnlyTwoPhases();
+        if (phase == 2) revert PearlClubONFT__OnlyTwoPhases();
         uint8 newPhase;
 
         unchecked {
