@@ -17,40 +17,42 @@ contract TestPearlClubONFT is Test {
 
     event MinterSet(address indexed newMinter, address indexed oldMinter);
 
-   function setUp() public {
-   } 
+    function setUp() public {}
 
-   function getCurrentChainId() public view returns(uint256) {
-    uint256 id;
-    assembly {
-        id := chainid()
+    function getCurrentChainId() public view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
     }
-    return id;
-   }
 
-   function testDeployment(uint256 nonce, bytes32 sample) public {
-       vm.assume(nonce < 10000);
+    function testDeployment(uint256 nonce, bytes32 sample) public {
+        vm.assume(nonce < 10000);
 
         for (uint256 i = 0; i < 10; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
             ++nonce;
         }
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), address(this), getCurrentChainId());
         assertEq(pearlClub.totalSupply(), 0);
         assertEq(pearlClub.minter(), address(this));
         assert(pearlClub.supportsInterface(type(IONFT721).interfaceId));
         assert(pearlClub.supportsInterface(type(IERC2981).interfaceId));
-   }
+    }
 
     function testClaimWrongChain(address receiver, uint256 tokenId) public {
         tokenId = bound(tokenId, 1, 300);
         vm.assume(receiver != address(0));
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), address(this), getCurrentChainId());
         address[] memory singleReceiver = new address[](1);
         singleReceiver[0] = receiver;
-        pearlClub.setClaimAvailable(singleReceiver, true);
+        pearlClub.setClaimAvailable(singleReceiver, 1, true);
+        pearlClub.activateNextPhase();
 
         vm.chainId(1);
         vm.expectRevert(PearlClubONFT.PearlClubONFT__InvalidMintingChain.selector);
@@ -59,31 +61,35 @@ contract TestPearlClubONFT is Test {
         vm.expectRevert(bytes("ERC721: invalid token ID"));
         pearlClub.ownerOf(tokenId);
         assertEq(pearlClub.balanceOf(receiver), 0);
-   }
+    }
 
-   function testDoubleClaim(address receiver, uint256 tokenId) public {
+    function testDoubleClaim(address receiver, uint256 tokenId) public {
         tokenId = bound(tokenId, 1, 300);
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', 300, 350000, address(this), address(this), getCurrentChainId());
         address[] memory singleReceiver = new address[](1);
         singleReceiver[0] = receiver;
-        pearlClub.setClaimAvailable(singleReceiver, true);
+        pearlClub.setClaimAvailable(singleReceiver, 1, true);
+        pearlClub.activateNextPhase();
 
         pearlClub.mint(receiver, tokenId);
         vm.expectRevert(PearlClubONFT.PearlClubONFT__NoClaimAvailable.selector);
         pearlClub.mint(receiver, tokenId);
-   }
+    }
 
-   function testOverMaxMint(uint256 nonce, bytes32 sample, uint256 length) public {
-       vm.assume(nonce < 10000);
-       length = bound(length, 2, 100);
+    function testOverMaxMint(uint256 nonce, bytes32 sample, uint256 length) public {
+        vm.assume(nonce < 10000);
+        length = bound(length, 2, 100);
 
-       for (uint256 i = 0; i < length; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
+        for (uint256 i = 0; i < length; ++i) {
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
             ++nonce;
         }
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length - 1, 350000, address(this), address(this), getCurrentChainId());
-        pearlClub.setClaimAvailable(receivers, true);
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', length - 1, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub.setClaimAvailable(receivers, 1, true);
+        pearlClub.activateNextPhase();
 
         for (uint256 i = 0; i < length - 1; ++i) {
             pearlClub.mint(receivers[i], i + 1);
@@ -93,19 +99,21 @@ contract TestPearlClubONFT is Test {
 
         vm.expectRevert(PearlClubONFT.PearlClubONFT__FullyMinted.selector);
         pearlClub.mint(receivers[length - 1], length);
-   }
+    }
 
-   function testBlacklistFunctions(uint256 nonce, bytes32 sample, uint256 length) public {
-       vm.assume(nonce < 10000);
-       length = bound(length, 10, 100);
+    function testBlacklistFunctions(uint256 nonce, bytes32 sample, uint256 length) public {
+        vm.assume(nonce < 10000);
+        length = bound(length, 10, 100);
 
-       for (uint256 i = 0; i < length; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
+        for (uint256 i = 0; i < length; ++i) {
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
             ++nonce;
         }
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
-        pearlClub.setClaimAvailable(receivers, true);
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub.setClaimAvailable(receivers, 1, true);
+        pearlClub.activateNextPhase();
 
         for (uint256 i = 0; i < length; ++i) {
             pearlClub.mint(receivers[i], i + 1);
@@ -131,19 +139,89 @@ contract TestPearlClubONFT is Test {
         bytes memory safeTransferData = abi.encodePacked(uint256(0));
         pearlClub.safeTransferFrom(receivers[2], receivers[1], 2, safeTransferData);
         assertEq(pearlClub.ownerOf(2), receivers[1]);
-   }
+    }
 
-   function testUpdateRoyaltiesRecipient(uint256 nonce, bytes32 sample, uint256 length) public {
+    function testPhases(uint256 nonce, bytes32 sample, uint256 length) public {
         vm.assume(nonce < 10000);
-       length = bound(length, 10, 100);
+        length = bound(length, 10, 100);
 
-       for (uint256 i = 0; i < length; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
+        for (uint256 i = 0; i < length; ++i) {
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
             ++nonce;
         }
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
-        pearlClub.setClaimAvailable(receivers, true);
+        address[] memory receiversPhase2 = new address[](length);
+        address[] memory dummyReceivers = new address[](0);
+
+        for (uint256 i = 0; i < length; ++i) {
+            receiversPhase2[i] = address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample)))));
+            ++nonce;
+        }
+
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', length * 2, 350000, address(this), address(this), getCurrentChainId());
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__ClaimsListMustBeFinalized.selector);
+        pearlClub.mint(receivers[0], 1);
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__ClaimsListMustBeFinalized.selector);
+        pearlClub.mint(receiversPhase2[0], 2);
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__ClaimsListMustBeFinalized.selector);
+        pearlClub.activateNextPhase();
+
+        pearlClub.setClaimAvailable(receivers, 1, false);
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__ClaimsListMustBeFinalized.selector);
+        pearlClub.activateNextPhase();
+
+        pearlClub.setClaimAvailable(dummyReceivers, 1, true);
+
+        pearlClub.activateNextPhase();
+
+        uint256 tokensMinted;
+        for (uint256 i = 0; i < receivers.length - 1; ++i) {
+            pearlClub.mint(receivers[i], i + 1);
+            assertEq(pearlClub.ownerOf(i + 1), receivers[i]);
+            ++tokensMinted;
+        }
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__NoClaimAvailable.selector);
+        pearlClub.mint(receiversPhase2[0], tokensMinted + 1);
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__ClaimsListMustBeFinalized.selector);
+        pearlClub.activateNextPhase();
+
+        pearlClub.setClaimAvailable(receiversPhase2, 2, true);
+        pearlClub.activateNextPhase();
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__OnlyTwoPhases.selector);
+        pearlClub.activateNextPhase();
+
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__NoClaimAvailable.selector);
+        pearlClub.mint(receivers[tokensMinted], tokensMinted + 1);
+
+        uint256 nextToken = tokensMinted + 1;
+
+        for (uint256 i = 0; i < receiversPhase2.length; ++i) {
+            pearlClub.mint(receiversPhase2[i], i + nextToken);
+            assertEq(pearlClub.ownerOf(i + nextToken), receiversPhase2[i]);
+        }
+    }
+
+    function testUpdateRoyaltiesRecipient(uint256 nonce, bytes32 sample, uint256 length) public {
+        vm.assume(nonce < 10000);
+        length = bound(length, 10, 100);
+
+        for (uint256 i = 0; i < length; ++i) {
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
+            ++nonce;
+        }
+
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub.setClaimAvailable(receivers, 1, true);
+        pearlClub.activateNextPhase();
 
         for (uint256 i = 0; i < length; ++i) {
             pearlClub.mint(receivers[i], i + 1);
@@ -156,20 +234,22 @@ contract TestPearlClubONFT is Test {
         pearlClub.setRoyaltiesRecipient(address(0xdeadbeef));
         (receiver,) = pearlClub.royaltyInfo(1, 1 ether);
         assertEq(receiver, address(0xdeadbeef));
-   }
+    }
 
-   function testUpdateSigner(uint256 nonce, bytes32 sample, uint256 length, address newMinter) public {
-    vm.assume(nonce < 10000);
-    vm.assume(newMinter != address(0));
-       length = bound(length, 10, 100);
+    function testUpdateMinter(uint256 nonce, bytes32 sample, uint256 length, address newMinter) public {
+        vm.assume(nonce < 10000);
+        vm.assume(newMinter != address(0));
+        length = bound(length, 10, 100);
 
-       for (uint256 i = 0; i < length; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
+        for (uint256 i = 0; i < length; ++i) {
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
             ++nonce;
         }
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
-        pearlClub.setClaimAvailable(receivers, true);
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub.setClaimAvailable(receivers, 1, true);
+        pearlClub.activateNextPhase();
 
         for (uint256 i = 0; i < length - 1; ++i) {
             pearlClub.mint(receivers[i], i + 1);
@@ -188,19 +268,21 @@ contract TestPearlClubONFT is Test {
         pearlClub.mint(receivers[length - 1], length);
 
         assertEq(pearlClub.ownerOf(length), receivers[length - 1]);
-   }
+    }
 
-   function testOwnerFunctions(uint256 nonce, bytes32 sample, uint256 length, address badGuy) public {
-    vm.assume(nonce < 10000);
-       length = bound(length, 10, 100);
+    function testOwnerFunctions(uint256 nonce, bytes32 sample, uint256 length, address badGuy) public {
+        vm.assume(nonce < 10000);
+        length = bound(length, 10, 100);
 
-       for (uint256 i = 0; i < length; ++i) {
-            receivers.push(address(uint160(uint(keccak256(abi.encodePacked(nonce, sample))))));
+        for (uint256 i = 0; i < length; ++i) {
+            receivers.push(address(uint160(uint256(keccak256(abi.encodePacked(nonce, sample))))));
             ++nonce;
         }
 
-        pearlClub = new PearlClubONFT(address(0), 'https://testuri.com/', length + 50, 350000, address(this), address(this), getCurrentChainId());
-        pearlClub.setClaimAvailable(receivers, true);
+        pearlClub =
+        new PearlClubONFT(address(0), 'https://testuri.com/', length + 50, 350000, address(this), address(this), getCurrentChainId());
+        pearlClub.setClaimAvailable(receivers, 1, true);
+        pearlClub.activateNextPhase();
 
         for (uint256 i = 0; i < length; ++i) {
             pearlClub.mint(receivers[i], i + 1);
@@ -215,6 +297,8 @@ contract TestPearlClubONFT is Test {
         pearlClub.setMinter(badGuy);
         vm.expectRevert(PearlClubONFT.PearlClubONFT__CallerNotOwner.selector);
         pearlClub.setRoyaltiesRecipient(address(0xdeadbeef));
+        vm.expectRevert(PearlClubONFT.PearlClubONFT__CallerNotOwner.selector);
+        pearlClub.activateNextPhase();
         vm.stopPrank();
-   }
+    }
 }
