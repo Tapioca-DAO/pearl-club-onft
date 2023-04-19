@@ -10,7 +10,6 @@ import {DefaultOperatorFilterer} from "operator-filter-registry/src/DefaultOpera
 
 contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
-    uint256 public nextTokenID = 1;
 
     uint256 public immutable MAX_MINT_ID;
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
