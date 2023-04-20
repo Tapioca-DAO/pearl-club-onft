@@ -12,41 +12,42 @@ const padBuffer = (addr: string) => {
 async function register() {
     const accounts = await ethers.getSigners();
     const deployer = accounts[0];
-    const whitelisted = accounts.slice(0, 5);
-    const notWhitelisted = accounts.slice(5, 10);
-    const leaves = whitelisted.map((account) => padBuffer(account.address));
-    const tree = new MerkleTree(leaves, keccak256, { sort: true });
-    const merkleRoot = tree.getHexRoot();
-    const PearlClubONFT = await ethers.getContractFactory('PearlClubONFT');
-    const pearlClubONFT = await PearlClubONFT.deploy(
-        ethers.constants.AddressZero,
-        `ipfs://${process.env.METADATA_CID}/arb/`,
-        0,
-        10,
+
+    const endpointFactory = await ethers.getContractFactory('LZEndpointMock');
+    const pcNFTFactory = await ethers.getContractFactory('PearlClubONFTMock');
+
+    const endpoint10 = await endpointFactory.deploy(10);
+    const endpoint20 = await endpointFactory.deploy(20);
+
+    const pearlClubONFT1 = await pcNFTFactory.deploy(
+        endpoint10.address,
+        'ipfs://',
+        777,
         '350000',
         deployer.address,
         deployer.address,
+        1,
     );
-    await pearlClubONFT.deployed();
-    await pearlClubONFT.activateNextPhase();
-    const initalSetup = {
+    await pearlClubONFT1.setChainID(1);
+
+    const pearlClubONFT2 = await pcNFTFactory.deploy(
+        endpoint20.address,
+        'ipfs://',
+        777,
+        '350000',
+        deployer.address,
+        deployer.address,
+        1,
+    );
+    await pearlClubONFT2.setChainID(2);
+
+    const initialSetup = {
         deployer,
-        accounts,
-        whitelisted,
-        notWhitelisted,
-        tree,
-        pearlClubONFT,
-        PearlClubONFT,
+        accounts: accounts.slice(1),
+        pearlClubONFT1,
+        pearlClubONFT2,
     };
 
-    async function mintFor(_to: string) {
-        const tokenID = (await pearlClubONFT.totalSupply()).add(1);
-        await pearlClubONFT.mint(_to, tokenID);
-        return { _to, tokenID };
-    }
-    const utilFuncs = {
-        mintFor,
-    };
-    return { ...initalSetup, ...utilFuncs };
+    return { ...initialSetup };
 }
 export { padBuffer, register, BN };
