@@ -23,10 +23,12 @@ async function register() {
         `ipfs://${process.env.METADATA_CID}/arb/`,
         0,
         10,
-        350000,
+        '350000',
+        deployer.address,
+        deployer.address,
     );
     await pearlClubONFT.deployed();
-    await pearlClubONFT.setTreeRoot(merkleRoot);
+    await pearlClubONFT.activateNextPhase();
     const initalSetup = {
         deployer,
         accounts,
@@ -37,13 +39,10 @@ async function register() {
         PearlClubONFT,
     };
 
-    async function mintFor(_to?: Wallet) {
-        const to = _to ?? whitelisted[0];
-        const tokenID = await pearlClubONFT.nextMintId();
-        await pearlClubONFT
-            .connect(to)
-            .mint(tree.getHexProof(padBuffer(to.address)));
-        return { to, tokenID };
+    async function mintFor(_to: string) {
+        const tokenID = (await pearlClubONFT.totalSupply()).add(1);
+        await pearlClubONFT.mint(_to, tokenID);
+        return { _to, tokenID };
     }
     const utilFuncs = {
         mintFor,
