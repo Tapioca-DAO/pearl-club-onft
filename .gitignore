@@ -8,7 +8,7 @@ tree.json
 .DS_Store
 test-accounts.json
 # Hardhat files
-cache
+cache_hardhat
 artifacts
 
 # Foundry Files
