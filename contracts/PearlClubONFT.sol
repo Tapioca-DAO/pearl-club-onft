@@ -76,11 +76,8 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         if (!hasClaimAvailable[phase_][receiver])
             revert PearlClubONFT__NoClaimAvailable();
 
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        if (chainId != CHAIN_ID) revert PearlClubONFT__InvalidMintingChain();
+        if (_getChainId() != CHAIN_ID)
+            revert PearlClubONFT__InvalidMintingChain();
 
         hasClaimAvailable[phase_][receiver] = false;
 
@@ -136,11 +133,12 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @dev    The claims list must be finalized before advancing to the next phase
     function activateNextPhase() external {
         _requireOwner();
-        if (phase == 2) revert PearlClubONFT__OnlyTwoPhases();
+        uint8 _phase = phase;
+        if (_phase == 2) revert PearlClubONFT__OnlyTwoPhases();
         uint8 newPhase;
 
         unchecked {
-            newPhase = phase + 1;
+            newPhase = _phase + 1;
         }
 
         if (!claimsFinalized[newPhase])
@@ -157,6 +155,15 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         if (_msgSender() != owner()) {
             revert PearlClubONFT__CallerNotOwner();
         }
+    }
+
+    /// @dev Returns the chain ID of the current network
+    function _getChainId() internal view virtual returns (uint256) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        return chainId;
     }
 
     /**
