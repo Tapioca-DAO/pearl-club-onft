@@ -8,6 +8,7 @@ import 'hardhat-gas-reporter';
 require('@primitivefi/hardhat-dodoc');
 import { HardhatUserConfig } from 'hardhat/config';
 import { HttpNetworkConfig } from 'hardhat/types';
+import 'hardhat-tracer';
 
 import SDK from 'tapioca-sdk';
 
@@ -44,7 +45,6 @@ const supportedChains = SDK.API.utils.getSupportedChains().reduce(
 );
 const config: HardhatUserConfig & { dodoc?: any } = {
     SDK: { project: 'generic' },
-    defaultNetwork: 'hardhat',
     namedAccounts: {
         deployer: 0,
     },
@@ -65,13 +65,12 @@ const config: HardhatUserConfig & { dodoc?: any } = {
         ],
     },
 
+    defaultNetwork: 'hardhat',
     networks: {
         hardhat: {
-            saveDeployments: false,
-            forking: {
-                url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+            accounts: {
+                count: 5,
             },
-            hardfork: 'merge',
         },
         ...supportedChains,
     },
