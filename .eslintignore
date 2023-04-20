@@ -1,4 +1,7 @@
 node_modules
 artifacts
-cache
 coverage
+docs
+forge-cache
+cache_hardhat
+out
