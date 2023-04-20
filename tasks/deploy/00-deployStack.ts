@@ -31,7 +31,7 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
             '350000',
             signer.address,
             signer.address,
-            hostChainInfo.lzChainId,
+            hostChainInfo.chainId,
         ],
     });
 
