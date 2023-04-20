@@ -10,7 +10,6 @@ import { HardhatUserConfig } from 'hardhat/config';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 import SDK from 'tapioca-sdk';
-import fs from 'fs';
 
 dotenv.config();
 
@@ -83,25 +82,14 @@ const config: HardhatUserConfig & { dodoc?: any } = {
         exclude: [],
     },
     etherscan: {
-        apiKey: process.env.ETHERSCAN_KEY,
-        customChains: [
-            {
-                network: 'bnb_testnet',
-                chainId: 97,
-                urls: {
-                    apiURL: 'https://api-testnet.bscscan.com/api',
-                    browserURL: 'https://testnet.bscscan.com/',
-                },
-            },
-            {
-                network: 'fuji_avalanche',
-                chainId: 43113,
-                urls: {
-                    apiURL: 'https://api-testnet.snowtrace.io/',
-                    browserURL: 'https://testnet.snowtrace.io/',
-                },
-            },
-        ],
+        apiKey: {
+            goerli: process.env.BLOCKSCAN_KEY ?? '',
+            arbitrumGoerli: process.env.ARBITRUM_GOERLI_KEY ?? '',
+            avalancheFujiTestnet: process.env.AVALANCHE_FUJI_KEY ?? '',
+            bscTestnet: process.env.BSC_KEY ?? '',
+            polygonMumbai: process.env.POLYGON_MUMBAI ?? '',
+            ftmTestnet: process.env.FTM_TESTNET ?? '',
+        },
     },
     mocha: {
         timeout: 50000000,
