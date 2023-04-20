@@ -95,6 +95,17 @@ function ROYALITY_FEE() external view returns (uint96)
 |---|---|---|
 | _0 | uint96 | undefined |
 
+### activateNextPhase
+
+```solidity
+function activateNextPhase() external nonpayable
+```
+
+Advances the phase to the next stage with a maximum of 2 phases enforced
+
+*The claims list must be finalized before advancing to the next phase*
+
+
 ### approve
 
 ```solidity
@@ -134,13 +145,13 @@ function balanceOf(address owner) external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### claimed
+### claimsFinalized
 
 ```solidity
-function claimed(address) external view returns (bool)
+function claimsFinalized(uint8) external view returns (bool)
 ```
 
-
+mapping indicating if a phase is complete
 
 
 
@@ -148,7 +159,7 @@ function claimed(address) external view returns (bool)
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | address | undefined |
+| _0 | uint8 | undefined |
 
 #### Returns
 
@@ -380,6 +391,29 @@ function getTrustedRemoteAddress(uint16 _remoteChainId) external view returns (b
 |---|---|---|
 | _0 | bytes | undefined |
 
+### hasClaimAvailable
+
+```solidity
+function hasClaimAvailable(uint8, address) external view returns (bool)
+```
+
+Mapping of phase -&gt; addresses that are eligible to claim
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint8 | undefined |
+| _1 | address | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
 ### isApprovedForAll
 
 ```solidity
@@ -462,23 +496,6 @@ function lzReceive(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _
 | _nonce | uint64 | undefined |
 | _payload | bytes | undefined |
 
-### merkleRoot
-
-```solidity
-function merkleRoot() external view returns (bytes32)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bytes32 | undefined |
-
 ### minDstGasLookup
 
 ```solidity
@@ -522,7 +539,7 @@ function minGasToTransferAndStore() external view returns (uint256)
 ### mint
 
 ```solidity
-function mint(bytes32[] merkleProof) external payable
+function mint(address receiver, uint256 id) external nonpayable
 ```
 
 Mint your ONFT
@@ -533,7 +550,25 @@ Mint your ONFT
 
 | Name | Type | Description |
 |---|---|---|
-| merkleProof | bytes32[] | undefined |
+| receiver | address | undefined |
+| id | uint256 | undefined |
+
+### minter
+
+```solidity
+function minter() external view returns (address)
+```
+
+Owner controlled account which will mint for users on the whitelist
+
+*This was implemented to prevent trait sniping during mint and enforce a random ID*
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | address | undefined |
 
 ### name
 
@@ -551,23 +586,6 @@ function name() external view returns (string)
 | Name | Type | Description |
 |---|---|---|
 | _0 | string | undefined |
-
-### nextMintId
-
-```solidity
-function nextMintId() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
 
 ### nonblockingLzReceive
 
@@ -648,6 +666,23 @@ function payloadSizeLimitLookup(uint16) external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
+
+### phase
+
+```solidity
+function phase() external view returns (uint8)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint8 | undefined |
 
 ### precrime
 
@@ -818,6 +853,40 @@ function setApprovalForAll(address operator, bool approved) external nonpayable
 | operator | address | undefined |
 | approved | bool | undefined |
 
+### setBaseURI
+
+```solidity
+function setBaseURI(string __baseURI) external nonpayable
+```
+
+Sets the baseURI for the token
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| __baseURI | string | undefined |
+
+### setClaimAvailable
+
+```solidity
+function setClaimAvailable(address[] addresses, uint8 phase_, bool finalize) external nonpayable
+```
+
+Sets the mapping of eligible
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| addresses | address[] | undefined |
+| phase_ | uint8 | undefined |
+| finalize | bool | undefined |
+
 ### setConfig
 
 ```solidity
@@ -905,6 +974,22 @@ function setMinGasToTransferAndStore(uint256 _minGasToTransferAndStore) external
 |---|---|---|
 | _minGasToTransferAndStore | uint256 | undefined |
 
+### setMinter
+
+```solidity
+function setMinter(address newMinter) external nonpayable
+```
+
+Sets the whitelisted minter for the contract
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| newMinter | address | undefined |
+
 ### setPayloadSizeLimit
 
 ```solidity
@@ -960,7 +1045,7 @@ function setReceiveVersion(uint16 _version) external nonpayable
 function setRoyaltiesRecipient(address newRecipient) external nonpayable
 ```
 
-
+Update the royalty recipient
 
 
 
@@ -985,22 +1070,6 @@ function setSendVersion(uint16 _version) external nonpayable
 | Name | Type | Description |
 |---|---|---|
 | _version | uint16 | undefined |
-
-### setTreeRoot
-
-```solidity
-function setTreeRoot(bytes32 _merkleRoot) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _merkleRoot | bytes32 | undefined |
 
 ### setTrustedRemote
 
@@ -1288,6 +1357,23 @@ event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes 
 | _payload  | bytes | undefined |
 | _reason  | bytes | undefined |
 
+### MinterSet
+
+```solidity
+event MinterSet(address indexed newMinter, address indexed oldMinter)
+```
+
+Emitted when the minter is updated
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| newMinter `indexed` | address | undefined |
+| oldMinter `indexed` | address | undefined |
+
 ### OwnershipTransferred
 
 ```solidity
@@ -1304,6 +1390,22 @@ event OwnershipTransferred(address indexed previousOwner, address indexed newOwn
 |---|---|---|
 | previousOwner `indexed` | address | undefined |
 | newOwner `indexed` | address | undefined |
+
+### PhaseActivated
+
+```solidity
+event PhaseActivated(uint8 newPhase)
+```
+
+Emitted when a phase is activated
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| newPhase  | uint8 | undefined |
 
 ### ReceiveFromChain
 
@@ -1468,10 +1570,43 @@ error OperatorNotAllowed(address operator)
 |---|---|---|
 | operator | address | undefined |
 
-### PearlClubONFT__AlreadyClaimed
+### PearlClubONFT__CallerNotMinter
 
 ```solidity
-error PearlClubONFT__AlreadyClaimed()
+error PearlClubONFT__CallerNotMinter()
+```
+
+
+
+
+
+
+### PearlClubONFT__CallerNotOwner
+
+```solidity
+error PearlClubONFT__CallerNotOwner()
+```
+
+
+
+
+
+
+### PearlClubONFT__ClaimListFinalized
+
+```solidity
+error PearlClubONFT__ClaimListFinalized()
+```
+
+
+
+
+
+
+### PearlClubONFT__ClaimsListMustBeFinalized
+
+```solidity
+error PearlClubONFT__ClaimsListMustBeFinalized()
 ```
 
 
@@ -1490,10 +1625,32 @@ error PearlClubONFT__FullyMinted()
 
 
 
-### PearlClubONFT__NotWhitelisted
+### PearlClubONFT__InvalidMintingChain
 
 ```solidity
-error PearlClubONFT__NotWhitelisted()
+error PearlClubONFT__InvalidMintingChain()
+```
+
+
+
+
+
+
+### PearlClubONFT__NoClaimAvailable
+
+```solidity
+error PearlClubONFT__NoClaimAvailable()
+```
+
+
+
+
+
+
+### PearlClubONFT__OnlyTwoPhases
+
+```solidity
+error PearlClubONFT__OnlyTwoPhases()
 ```
 
 
