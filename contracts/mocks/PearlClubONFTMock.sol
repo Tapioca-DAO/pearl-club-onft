@@ -13,7 +13,8 @@ contract PearlClubONFTMock is PearlClubONFT {
         uint256 _minGas,
         address royaltyReceiver,
         address _minter,
-        uint256 _chainId
+        uint256 _chainId,
+        address _owner
     )
         PearlClubONFT(
             _layerZeroEndpoint,
@@ -22,7 +23,8 @@ contract PearlClubONFTMock is PearlClubONFT {
             _minGas,
             royaltyReceiver,
             _minter,
-            _chainId
+            _chainId,
+            _owner
         )
     {}
 

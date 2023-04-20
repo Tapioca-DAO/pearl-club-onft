@@ -57,13 +57,16 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         uint256 _minGas,
         address royaltyReceiver,
         address _minter,
-        uint256 _chainId
+        uint256 _chainId,
+        address _owner
     ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         MAX_MINT_ID = _endMintId;
         CHAIN_ID = _chainId;
         minter = _minter;
         _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
+
+        transferOwnership(_owner);
     }
 
     /// @notice Mint your ONFT

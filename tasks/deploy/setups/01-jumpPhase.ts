@@ -9,7 +9,7 @@ export const jumpPhase__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         ).deployment.address,
     );
     console.log('[+] Jumping to next phase');
-    (await pearlClubONFT.activateNextPhase()).wait();
+    (await pearlClubONFT.activateNextPhase()).wait(3);
     console.log(
         '[+] Jumped to phase',
         (await pearlClubONFT.phase()).toString(),

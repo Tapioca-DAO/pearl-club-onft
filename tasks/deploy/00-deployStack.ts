@@ -17,7 +17,7 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         // Change this if you get bytecode size error / gas required exceeds allowance (550000000)/ anything related to bytecode size
         // Could be different by network/RPC provider
         bytecodeSizeLimit: 100_000,
-        debugMode: false,
+        debugMode: true,
         tag,
     });
 
@@ -32,6 +32,7 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
             signer.address,
             signer.address,
             hostChainInfo.chainId,
+            signer.address,
         ],
     });
 

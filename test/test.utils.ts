@@ -27,6 +27,7 @@ async function register() {
         deployer.address,
         deployer.address,
         1,
+        deployer.address,
     );
     await pearlClubONFT1.setChainID(1);
 
@@ -38,6 +39,7 @@ async function register() {
         deployer.address,
         deployer.address,
         1,
+        deployer.address,
     );
     await pearlClubONFT2.setChainID(2);
 

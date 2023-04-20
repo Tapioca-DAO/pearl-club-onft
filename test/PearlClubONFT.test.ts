@@ -1,8 +1,6 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
-import { BN, register } from './test.utils';
-import { PearlClubONFT } from '../typechain-types';
-import hre from 'hardhat';
+import { register } from './test.utils';
 
 describe('Pearl Club ONFT test', function () {
     describe('ONFT functionality test', async () => {
