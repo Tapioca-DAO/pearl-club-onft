@@ -1,36 +1,50 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import SDK from 'tapioca-sdk';
+import inquirer from 'inquirer';
 
-export const sendFrom__task = async (
-    taskArgs: { dstchain: string; toaddress: string; tokenid: string },
-    hre: HardhatRuntimeEnvironment,
-) => {
+export const sendFrom__task = async ({}, hre: HardhatRuntimeEnvironment) => {
     const { ethers } = hre;
     const pearlClubONFT = await ethers.getContractAt(
         'PearlClubONFT',
         (
-            await hre.deployments.get('PearlClubONFT')
-        ).address,
+            await hre.SDK.hardhatUtils.getLocalContract(hre, 'PearlClubONFT')
+        ).deployment.address,
     );
-    const dstChainID = SDK.API.utils.getChainBy('name', taskArgs.dstchain)
-        ?.lzChainId!;
+    const dstChainID = (await hre.SDK.hardhatUtils.askForChain())!;
     const from = (await ethers.getSigners())[0].address;
-    const to = taskArgs.toaddress ?? from;
+    const { to } = await inquirer.prompt({
+        type: 'input',
+        name: 'to',
+        message: 'Enter the destination address:',
+    });
+
+    const { tokenID } = await inquirer.prompt({
+        type: 'input',
+        name: 'tokenID',
+        message: 'Enter the tokenID to send:',
+    });
+
+    if ((await pearlClubONFT.ownerOf(tokenID)) != from) {
+        throw new Error(
+            `Token ${tokenID} is not owned by ${from} and cannot be sent`,
+        );
+    }
+
     const fee = (
         await pearlClubONFT.estimateSendFee(
-            dstChainID,
+            dstChainID.lzChainId,
             to,
-            taskArgs.tokenid,
+            tokenID,
             false,
             '0x',
         )
     ).nativeFee;
+
     await pearlClubONFT
         .sendFrom(
             from,
-            dstChainID,
+            dstChainID.lzChainId,
             to,
-            taskArgs.tokenid,
+            tokenID,
             from,
             ethers.constants.AddressZero,
             '0x',
@@ -38,7 +52,7 @@ export const sendFrom__task = async (
         )
         .then((tx) =>
             console.log(
-                `Sent token ${taskArgs.tokenid} from: ${from}\nto: ${to} \non ${taskArgs.dstchain} with LZID of ${dstChainID} successfully \ntxID: ${tx.hash}`,
+                `Sent token ${tokenID} from: ${from}\nto: ${to} \non ${dstChainID.name} with LZID of ${dstChainID.lzChainId} successfully \ntxID: ${tx.hash}`,
             ),
         );
 };
