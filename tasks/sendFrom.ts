@@ -29,13 +29,18 @@ export const sendFrom__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         );
     }
 
+    const defaultAdapterParams = ethers.utils.solidityPack(
+        ['uint16', 'uint256'],
+        [1, 300_000],
+    );
+
     const fee = (
         await pearlClubONFT.estimateSendFee(
             dstChainID.lzChainId,
             to,
             tokenID,
             false,
-            '0x',
+            defaultAdapterParams,
         )
     ).nativeFee;
 
@@ -47,7 +52,7 @@ export const sendFrom__task = async ({}, hre: HardhatRuntimeEnvironment) => {
             tokenID,
             from,
             ethers.constants.AddressZero,
-            '0x',
+            defaultAdapterParams,
             { value: fee },
         )
         .then((tx) =>
