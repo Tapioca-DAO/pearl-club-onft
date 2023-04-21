@@ -1,3 +1,6 @@
 [submodule "lib/murky"]
 	path = lib/murky
 	url = https://github.com/dmfxyz/murky
+[submodule "gitsub_tapioca-sdk"]
+	path = gitsub_tapioca-sdk
+	url = https://github.com/Tapioca-DAO/tapioca-sdk.git

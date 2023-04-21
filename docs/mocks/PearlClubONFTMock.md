@@ -1,4 +1,4 @@
-# PearlClubONFT
+# PearlClubONFTMock
 
 
 
@@ -94,6 +94,23 @@ function ROYALITY_FEE() external view returns (uint96)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint96 | undefined |
+
+### __chainId
+
+```solidity
+function __chainId() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
 
 ### activateNextPhase
 
@@ -561,7 +578,7 @@ function minter() external view returns (address)
 
 Owner controlled account which will mint for users on the whitelist
 
-*This was implemented to prevent trait sniping during mint and enforce a random ID*
+
 
 
 #### Returns
@@ -868,6 +885,22 @@ Sets the baseURI for the token
 | Name | Type | Description |
 |---|---|---|
 | __baseURI | string | undefined |
+
+### setChainID
+
+```solidity
+function setChainID(uint256 _chainId) external nonpayable
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _chainId | uint256 | undefined |
 
 ### setClaimAvailable
 

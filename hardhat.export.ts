@@ -8,54 +8,49 @@ import 'hardhat-gas-reporter';
 require('@primitivefi/hardhat-dodoc');
 import { HardhatUserConfig } from 'hardhat/config';
 import { HttpNetworkConfig } from 'hardhat/types';
+import 'hardhat-tracer';
 
 import SDK from 'tapioca-sdk';
 
 dotenv.config();
 
-let supportedChains: { [key: string]: HttpNetworkConfig } = SDK.API.utils
-    .getSupportedChains()
-    .reduce(
-        (sdkChains, chain) => ({
-            ...sdkChains,
-            [chain.name]: <HttpNetworkConfig>{
-                accounts:
-                    process.env.PRIVATE_KEY !== undefined
-                        ? [process.env.PRIVATE_KEY]
-                        : [],
-                live: true,
-                url: chain.rpc.replace('<api_key>', process.env.ALCHEMY_KEY!),
-                gasMultiplier: chain.tags.includes('testnet') ? 2 : 1,
-                chainId: Number(chain.chainId),
-            },
-        }),
-        {},
-    );
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace NodeJS {
+        interface ProcessEnv {
+            ALCHEMY_API_KEY: string;
+        }
+    }
+}
 
+type TNetwork = ReturnType<
+    typeof SDK.API.utils.getSupportedChains
+>[number]['name'];
+const supportedChains = SDK.API.utils.getSupportedChains().reduce(
+    (sdkChains, chain) => ({
+        ...sdkChains,
+        [chain.name]: <HttpNetworkConfig>{
+            accounts:
+                process.env.PRIVATE_KEY !== undefined
+                    ? [process.env.PRIVATE_KEY]
+                    : [],
+            live: true,
+            url: chain.rpc.replace('<api_key>', process.env.ALCHEMY_API_KEY),
+            gasMultiplier: chain.tags[0] === 'testnet' ? 2 : 1,
+            chainId: Number(chain.chainId),
+            tags: [...chain.tags],
+        },
+    }),
+    {} as { [key in TNetwork]: HttpNetworkConfig },
+);
 const config: HardhatUserConfig & { dodoc?: any } = {
-    defaultNetwork: 'hardhat',
+    SDK: { project: 'generic' },
     namedAccounts: {
         deployer: 0,
     },
-    preprocess: {
-        eachLine: (hre) => ({
-          transform: (line: string) => {
-            if (line.match(/^\s*import /i)) {
-              for (const [from, to] of getRemappings()) {
-                if (line.includes(from)) {
-                  line = line.replace(from, to);
-                  break;
-                }
-              }
-            }
-            return line;
-          },
-        }),
-      },
-      paths: {
-        sources: "./src",
-        cache: "./cache_hardhat",
-      },
+    paths: {
+        cache: './cache_hardhat',
+    },
     solidity: {
         compilers: [
             {
@@ -70,60 +65,30 @@ const config: HardhatUserConfig & { dodoc?: any } = {
         ],
     },
 
+    defaultNetwork: 'hardhat',
     networks: {
         hardhat: {
-            saveDeployments: false,
-            forking: {
-                url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+            accounts: {
+                count: 5,
             },
-            hardfork: 'merge',
         },
-        
-        //testnets
-        goerli: supportedChains['goerli'],
-        bnb_testnet: supportedChains['bnb_testnet'],
-        fuji_avalanche: supportedChains['fuji_avalanche'],
-        mumbai: supportedChains['mumbai'],
-        fantom_testnet: supportedChains['fantom_testnet'],
-        arbitrum_goerli: supportedChains['arbitrum_goerli'],
-        optimism_goerli: supportedChains['optimism_goerli'],
-        harmony_testnet: supportedChains['harmony_testnet'],
-
-        //mainnets
-        ethereum: supportedChains['ethereum'],
-        bnb: supportedChains['bnb'],
-        avalanche: supportedChains['avalanche'],
-        matic: supportedChains['polygon'],
-        arbitrum: supportedChains['arbitrum'],
-        optimism: supportedChains['optimism'],
-        fantom: supportedChains['fantom'],
-        harmony: supportedChains['harmony'],
+        ...supportedChains,
     },
-        
-    
+
     dodoc: {
         runOnCompile: true,
         freshOutput: true,
         exclude: [],
     },
     etherscan: {
-        apiKey: process.env.ETHERSCAN_KEY,
-        customChains:[  {
-            network: 'bnb_testnet',
-            chainId: 97,
-            urls: {
-                apiURL: 'https://api-testnet.bscscan.com/api',
-                browserURL: 'https://testnet.bscscan.com/'
-            },
+        apiKey: {
+            goerli: process.env.BLOCKSCAN_KEY ?? '',
+            arbitrumGoerli: process.env.ARBITRUM_GOERLI_KEY ?? '',
+            avalancheFujiTestnet: process.env.AVALANCHE_FUJI_KEY ?? '',
+            bscTestnet: process.env.BSC_KEY ?? '',
+            polygonMumbai: process.env.POLYGON_MUMBAI ?? '',
+            ftmTestnet: process.env.FTM_TESTNET ?? '',
         },
-        {
-            network: 'fuji_avalanche',
-            chainId: 43113,
-            urls: {
-                apiURL: 'https://api-testnet.snowtrace.io/',
-                browserURL: 'https://testnet.snowtrace.io/'
-            },
-        },]
     },
     mocha: {
         timeout: 50000000,
