@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 contract BulkOwnershipQuery {
     constructor() {}
 
     /// @dev Alternative to ERC721Enumerable - returns the owner of a large range of token ids in a single call
     /// This should handle at least 5000 tokens at a time, so in most cases paging is not necessary.
-    function getOwnersInBulk(
-        address contractAddress,
-        uint256 tokenIdBegin,
-        uint256 tokenIdEnd
-    ) external view returns (address[] memory) {
+    function getOwnersInBulk(address contractAddress, uint256 tokenIdBegin, uint256 tokenIdEnd)
+        external
+        view
+        returns (address[] memory)
+    {
         IERC721Metadata token = IERC721Metadata(contractAddress);
         uint256 numberOfTokens = tokenIdEnd - tokenIdBegin + 1;
         address[] memory owners = new address[](numberOfTokens);
@@ -30,12 +30,11 @@ contract BulkOwnershipQuery {
     /// This should handle at least 5000 owned tokens at a time, so in most cases paging is not necessary.
     /// Because we don't know the specified address's first token id owned, NFT contracts with a large number of tokens
     /// are not compatible with this function.
-    function getTokensOfOwner(
-        address contractAddress,
-        address ownerAddress,
-        uint256 tokenIdBegin,
-        uint256 tokenIdEnd
-    ) external view returns (uint256[] memory) {
+    function getTokensOfOwner(address contractAddress, address ownerAddress, uint256 tokenIdBegin, uint256 tokenIdEnd)
+        external
+        view
+        returns (uint256[] memory)
+    {
         IERC721Metadata token = IERC721Metadata(contractAddress);
         uint256 numberOfOwners = tokenIdEnd - tokenIdBegin + 1;
         uint256 ownerBalance = token.balanceOf(ownerAddress);
@@ -84,7 +83,7 @@ contract BulkOwnershipQuery {
                     try token.tokenURI(tokenId) returns (string memory uri) {
                         ownedTokenURIs[tokenIndex] = uri;
                     } catch {
-                        ownedTokenURIs[tokenIndex] = '';
+                        ownedTokenURIs[tokenIndex] = "";
                     }
 
                     ++tokenIndex;
