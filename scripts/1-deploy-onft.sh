@@ -9,10 +9,10 @@ echo "base uri: ${BASE_URI}"
 echo "max supply: ${MAX_SUPPLY}"
 echo "min gas: ${MIN_GAS}"
 echo "royalty receiver: ${ROYALTY_RECEIVER}"
-echo "roots: ${PHASE_1_ROOT} ${PHASE_2_ROOT}"
+echo "minter: ${MINTER}"
 echo "chain id: ${CHAIN_ID}"
 
 forge create contracts/PearlClubONFT.sol:PearlClubONFT \
-    --rpc-url ${RPC_ARB_GOERLI} --private-key ${DEPLOYER_KEY} -c ${CHAIN_ID} \
+    --rpc-url ${RPC_AVAX_FUJI} --private-key ${DEPLOYER_KEY} -c 43113 \
     --verify \
-    --constructor-args ${ARB_GOERLI_ENDPOINT} ${BASE_URI} ${MAX_SUPPLY} ${MIN_GAS} ${ROYALTY_RECEIVER} ${PHASE_1_ROOT} ${PHASE_2_ROOT} ${CHAIN_ID}
+    --constructor-args ${AVAX_FUJI_ENDPOINT} ${BASE_URI} ${MAX_SUPPLY} ${MIN_GAS} ${ROYALTY_RECEIVER} ${MINTER} ${CHAIN_ID}
