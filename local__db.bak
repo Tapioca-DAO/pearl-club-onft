@@ -3,7 +3,7 @@
         "43113": [
             {
                 "name": "PearlClubONFT",
-                "address": "0xD3395387ea7faFA252458C50173C219145BCD37C",
+                "address": "0x36ca2c2f0999B7CA9F0Cbb1EFBEb8452FBd02dd3",
                 "meta": {
                     "args": [
                         "0x93f54D755A063cE7bB9e6Ac47Eccc8e33411d706",
@@ -15,7 +15,7 @@
                         "421613",
                         "0xEAF9f533871B07B151883908B4Fb6eeF4b51A95F"
                     ],
-                    "salt": "0x3b932b9ae337b9ac572666cdd63fb390c29355a275312ad0a5684bc21fd44d37",
+                    "salt": "0x95a997a316cd3b17e8425d8165c5e0717e19a590e890d63d57ae9c3b7d89688d",
                     "create2": true
                 }
             },
