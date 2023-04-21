@@ -95,17 +95,6 @@ function ROYALITY_FEE() external view returns (uint96)
 |---|---|---|
 | _0 | uint96 | undefined |
 
-### activateNextPhase
-
-```solidity
-function activateNextPhase() external nonpayable
-```
-
-Advances the phase to the next stage with a maximum of 2 phases enforced
-
-*The claims list must be finalized before advancing to the next phase*
-
-
 ### approve
 
 ```solidity
@@ -148,18 +137,13 @@ function balanceOf(address owner) external view returns (uint256)
 ### claimsFinalized
 
 ```solidity
-function claimsFinalized(uint8) external view returns (bool)
+function claimsFinalized() external view returns (bool)
 ```
 
-mapping indicating if a phase is complete
+True if the claim list is finalized, false otherwise
 
 
 
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint8 | undefined |
 
 #### Returns
 
@@ -394,10 +378,10 @@ function getTrustedRemoteAddress(uint16 _remoteChainId) external view returns (b
 ### hasClaimAvailable
 
 ```solidity
-function hasClaimAvailable(uint8, address) external view returns (bool)
+function hasClaimAvailable(address) external view returns (bool)
 ```
 
-Mapping of phase -&gt; addresses that are eligible to claim
+Mapping of addresses that are eligible to claim
 
 
 
@@ -405,8 +389,7 @@ Mapping of phase -&gt; addresses that are eligible to claim
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | uint8 | undefined |
-| _1 | address | undefined |
+| _0 | address | undefined |
 
 #### Returns
 
@@ -667,23 +650,6 @@ function payloadSizeLimitLookup(uint16) external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### phase
-
-```solidity
-function phase() external view returns (uint8)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint8 | undefined |
-
 ### precrime
 
 ```solidity
@@ -872,7 +838,7 @@ Sets the baseURI for the token
 ### setClaimAvailable
 
 ```solidity
-function setClaimAvailable(address[] addresses, uint8 phase_, bool finalize) external nonpayable
+function setClaimAvailable(address[] addresses, bool finalize) external nonpayable
 ```
 
 Sets the mapping of eligible
@@ -884,7 +850,6 @@ Sets the mapping of eligible
 | Name | Type | Description |
 |---|---|---|
 | addresses | address[] | undefined |
-| phase_ | uint8 | undefined |
 | finalize | bool | undefined |
 
 ### setConfig
@@ -1391,22 +1356,6 @@ event OwnershipTransferred(address indexed previousOwner, address indexed newOwn
 | previousOwner `indexed` | address | undefined |
 | newOwner `indexed` | address | undefined |
 
-### PhaseActivated
-
-```solidity
-event PhaseActivated(uint8 newPhase)
-```
-
-Emitted when a phase is activated
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| newPhase  | uint8 | undefined |
-
 ### ReceiveFromChain
 
 ```solidity
@@ -1640,17 +1589,6 @@ error PearlClubONFT__InvalidMintingChain()
 
 ```solidity
 error PearlClubONFT__NoClaimAvailable()
-```
-
-
-
-
-
-
-### PearlClubONFT__OnlyTwoPhases
-
-```solidity
-error PearlClubONFT__OnlyTwoPhases()
 ```
 
 

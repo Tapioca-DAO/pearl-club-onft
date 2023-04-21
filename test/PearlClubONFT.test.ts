@@ -14,8 +14,7 @@ describe('Pearl Club ONFT test', function () {
                     .mint(accounts[2].address, 1),
             ).to.be.rejectedWith('PearlClubONFT__CallerNotMinter');
 
-            await pearlClubONFT1.setClaimAvailable([deployer.address], 1, true);
-            await pearlClubONFT1.activateNextPhase();
+            await pearlClubONFT1.setClaimAvailable([deployer.address], true);
             await expect(pearlClubONFT1.mint(deployer.address, 1)).to.not.be
                 .rejected;
         });

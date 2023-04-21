@@ -22,18 +22,12 @@ export const setClaim__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         addresses.push(address);
     }
 
-    const { phase } = await inquirer.prompt({
-        type: 'input',
-        message: 'Enter the phase',
-        name: 'phase',
-    });
-
     const { finalize } = await inquirer.prompt({
         type: 'confirm',
-        message: `Finalize phase ${phase}?`,
+        message: 'Finalize claim?',
         name: 'finalize',
     });
 
-    (await pearlClubONFT.setClaimAvailable(addresses, phase, finalize)).wait();
+    (await pearlClubONFT.setClaimAvailable(addresses, finalize)).wait();
     console.log('[+] Claim set successfully');
 };
