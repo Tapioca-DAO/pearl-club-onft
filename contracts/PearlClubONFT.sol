@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-import {ERC2981} from '@openzeppelin/contracts/token/common/ERC2981.sol';
-import {ONFT721} from 'tapioca-sdk/src/contracts/token/onft/ONFT721.sol';
-import {MerkleProof} from '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
-import {DefaultOperatorFilterer} from 'operator-filter-registry/src/DefaultOperatorFilterer.sol';
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {ERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
+import {ONFT721} from "tapioca-sdk/src/contracts/token/onft/ONFT721.sol";
+import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {DefaultOperatorFilterer} from "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 
 contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
@@ -15,7 +15,6 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
 
     uint256 private immutable CHAIN_ID;
-    uint8 public phase;
 
     /// @notice Owner controlled account which will mint for users on the whitelist
     /// @dev    This was implemented to prevent trait sniping during mint and enforce a random ID
@@ -23,10 +22,10 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
 
     string private baseURI;
 
-    /// @notice Mapping of phase -> addresses that are eligible to claim
-    mapping(uint8 => mapping(address => bool)) public hasClaimAvailable;
-    /// @notice mapping indicating if a phase is complete
-    mapping(uint8 => bool) public claimsFinalized;
+    /// @notice Mapping of addresses that are eligible to claim
+    mapping(address => bool) public hasClaimAvailable;
+    /// @notice True if the claim list is finalized, false otherwise
+    bool public claimsFinalized;
 
     error PearlClubONFT__CallerNotMinter();
     error PearlClubONFT__CallerNotOwner();
@@ -35,13 +34,9 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     error PearlClubONFT__FullyMinted();
     error PearlClubONFT__InvalidMintingChain();
     error PearlClubONFT__NoClaimAvailable();
-    error PearlClubONFT__OnlyTwoPhases();
 
     /// @notice Emitted when the minter is updated
     event MinterSet(address indexed newMinter, address indexed oldMinter);
-
-    /// @notice Emitted when a phase is activated
-    event PhaseActivated(uint8 newPhase);
 
     /// @param _layerZeroEndpoint Handles message transmission across chains
     /// @param __baseURI          URI endpoint to query metadata
@@ -59,7 +54,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         address _minter,
         uint256 _chainId,
         address _owner
-    ) ONFT721('Pearl Club ONFT', 'PCNFT', _minGas, _layerZeroEndpoint) {
+    ) ONFT721("Pearl Club ONFT", "PCNFT", _minGas, _layerZeroEndpoint) {
         baseURI = __baseURI;
         MAX_MINT_ID = _endMintId;
         CHAIN_ID = _chainId;
@@ -73,16 +68,14 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     function mint(address receiver, uint256 id) external {
         if (_msgSender() != minter) revert PearlClubONFT__CallerNotMinter();
         if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
-        uint8 phase_ = phase;
-        if (!claimsFinalized[phase_])
-            revert PearlClubONFT__ClaimsListMustBeFinalized();
-        if (!hasClaimAvailable[phase_][receiver])
-            revert PearlClubONFT__NoClaimAvailable();
+        if (!claimsFinalized) revert PearlClubONFT__ClaimsListMustBeFinalized();
+        if (!hasClaimAvailable[receiver]) revert PearlClubONFT__NoClaimAvailable();
 
-        if (_getChainId() != CHAIN_ID)
+        if (_getChainId() != CHAIN_ID) {
             revert PearlClubONFT__InvalidMintingChain();
+        }
 
-        hasClaimAvailable[phase_][receiver] = false;
+        hasClaimAvailable[receiver] = false;
 
         unchecked {
             ++totalSupply;
@@ -112,44 +105,20 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     }
 
     /// @notice Sets the mapping of eligible
-    function setClaimAvailable(
-        address[] calldata addresses,
-        uint8 phase_,
-        bool finalize
-    ) external {
+    function setClaimAvailable(address[] calldata addresses, bool finalize) external {
         _requireOwner();
-        if (claimsFinalized[phase_]) revert PearlClubONFT__ClaimListFinalized();
+        if (claimsFinalized) revert PearlClubONFT__ClaimListFinalized();
 
-        for (uint256 i = 0; i < addresses.length; ) {
-            hasClaimAvailable[phase_][addresses[i]] = true;
+        for (uint256 i = 0; i < addresses.length;) {
+            hasClaimAvailable[addresses[i]] = true;
             unchecked {
                 ++i;
             }
         }
 
         if (finalize) {
-            claimsFinalized[phase_] = true;
+            claimsFinalized = true;
         }
-    }
-
-    /// @notice Advances the phase to the next stage with a maximum of 2 phases enforced
-    /// @dev    The claims list must be finalized before advancing to the next phase
-    function activateNextPhase() external {
-        _requireOwner();
-        uint8 _phase = phase;
-        if (_phase == 2) revert PearlClubONFT__OnlyTwoPhases();
-        uint8 newPhase;
-
-        unchecked {
-            newPhase = _phase + 1;
-        }
-
-        if (!claimsFinalized[newPhase])
-            revert PearlClubONFT__ClaimsListMustBeFinalized();
-
-        phase = newPhase;
-
-        emit PhaseActivated(newPhase);
     }
 
     /// @dev Helper function to replace onlyOwner modifier
@@ -172,9 +141,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC2981, ONFT721) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC2981, ONFT721) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -184,42 +151,43 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     }
 
     // --------Blacklist Overrides--------//
-    function setApprovalForAll(
-        address operator,
-        bool approved
-    ) public override(ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
+    function setApprovalForAll(address operator, bool approved)
+        public
+        override(ERC721, IERC721)
+        onlyAllowedOperatorApproval(operator)
+    {
         super.setApprovalForAll(operator, approved);
     }
 
-    function approve(
-        address operator,
-        uint256 tokenId
-    ) public override(ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
+    function approve(address operator, uint256 tokenId)
+        public
+        override(ERC721, IERC721)
+        onlyAllowedOperatorApproval(operator)
+    {
         super.approve(operator, tokenId);
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override(ERC721, IERC721) onlyAllowedOperator(from) {
+    function transferFrom(address from, address to, uint256 tokenId)
+        public
+        override(ERC721, IERC721)
+        onlyAllowedOperator(from)
+    {
         super.transferFrom(from, to, tokenId);
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override(ERC721, IERC721) onlyAllowedOperator(from) {
+    function safeTransferFrom(address from, address to, uint256 tokenId)
+        public
+        override(ERC721, IERC721)
+        onlyAllowedOperator(from)
+    {
         super.safeTransferFrom(from, to, tokenId);
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public override(ERC721, IERC721) onlyAllowedOperator(from) {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
+        public
+        override(ERC721, IERC721)
+        onlyAllowedOperator(from)
+    {
         super.safeTransferFrom(from, to, tokenId, data);
     }
 }
