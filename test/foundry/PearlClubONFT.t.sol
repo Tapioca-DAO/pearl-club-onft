@@ -109,7 +109,7 @@ contract TestPearlClubONFT is Test {
         }
 
         pearlClub =
-        new PearlClubONFT(address(0), 'https://testuri.com/', length - 1, 350000, address(this), address(this), getCurrentChainId());
+        new PearlClubONFT(address(0), 'https://testuri.com/', length - 1, 350000, address(this), address(this), getCurrentChainId(), address(this));
         pearlClub.setClaimAvailable(receivers, true);
 
         for (uint256 i = 0; i < length - 1; ++i) {
@@ -132,7 +132,7 @@ contract TestPearlClubONFT is Test {
         }
 
         pearlClub =
-        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
+        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId(), address(this));
         pearlClub.setClaimAvailable(receivers, true);
 
         for (uint256 i = 0; i < length; ++i) {
@@ -171,7 +171,7 @@ contract TestPearlClubONFT is Test {
         }
 
         pearlClub =
-        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
+        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId(), address(this));
         pearlClub.setClaimAvailable(receivers, true);
 
         for (uint256 i = 0; i < length; ++i) {
@@ -198,7 +198,7 @@ contract TestPearlClubONFT is Test {
         }
 
         pearlClub =
-        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId());
+        new PearlClubONFT(address(0), 'https://testuri.com/', length, 350000, address(this), address(this), getCurrentChainId(), address(this));
         pearlClub.setClaimAvailable(receivers, true);
 
         for (uint256 i = 0; i < length - 1; ++i) {
@@ -230,7 +230,7 @@ contract TestPearlClubONFT is Test {
         }
 
         pearlClub =
-        new PearlClubONFT(address(0), 'https://testuri.com/', length + 50, 350000, address(this), address(this), getCurrentChainId());
+        new PearlClubONFT(address(0), 'https://testuri.com/', length + 50, 350000, address(this), address(this), getCurrentChainId(), address(this));
         pearlClub.setClaimAvailable(receivers, true);
 
         for (uint256 i = 0; i < length; ++i) {
