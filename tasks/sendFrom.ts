@@ -31,7 +31,7 @@ export const sendFrom__task = async ({}, hre: HardhatRuntimeEnvironment) => {
 
     const defaultAdapterParams = ethers.utils.solidityPack(
         ['uint16', 'uint256'],
-        [1, 300_000],
+        [1, 500_000],
     );
 
     const fee = (
