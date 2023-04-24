@@ -11,7 +11,6 @@ import { HttpNetworkConfig } from 'hardhat/types';
 import 'hardhat-tracer';
 
 import SDK from 'tapioca-sdk';
-import { TAPIOCA_PROJECTS_NAME } from 'tapioca-sdk/dist/api/config';
 
 dotenv.config();
 
@@ -45,7 +44,7 @@ const supportedChains = SDK.API.utils.getSupportedChains().reduce(
     {} as { [key in TNetwork]: HttpNetworkConfig },
 );
 const config: HardhatUserConfig & { dodoc?: any } = {
-    SDK: { project: TAPIOCA_PROJECTS_NAME.PCNFT },
+    SDK: { project: SDK.API.config.TAPIOCA_PROJECTS_NAME.PCNFT },
     namedAccounts: {
         deployer: 0,
     },
