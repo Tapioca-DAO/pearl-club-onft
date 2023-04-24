@@ -10,7 +10,7 @@
     "lint:ts": "eslint ./scripts ./tasks ./test ./*.ts --fix",
     "lint:sol": "prettier --write \"./contracts/**/*.sol\" && solhint \"./contracts/**/*.sol\" --fix",
     "lint": "yarn lint:ts && yarn lint:sol",
-    "prepare": "husky install"
+    "prepare": "husky install && git submodule init && git submodule update"
   },
   "license": "ISC",
   "dependencies": {
