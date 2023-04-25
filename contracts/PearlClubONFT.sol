@@ -12,7 +12,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     uint256 public totalSupply;
 
     uint256 public immutable MAX_MINT_ID;
-    uint96 public constant ROYALITY_FEE = 500; // 5% of every sale
+    uint96 public constant ROYALTY_FEE = 500; // 5% of every sale
 
     uint256 private immutable CHAIN_ID;
 
@@ -46,7 +46,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @param __baseURI          URI endpoint to query metadata
     /// @param _endMintId         The max number of mints on this chain
     /// @param _minGas            Min amount of gas required to transfer, and also store the payload
-    /// @param royaltyReceiver    Address of the receipient of royalties
+    /// @param royaltyReceiver    Address of the recipient of royalties
     /// @param _minter            Proxy address allowed to mint for users
     /// @param _chainId           The base chain ID where mints are allowed to happen
     constructor(
@@ -63,7 +63,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
         MAX_MINT_ID = _endMintId;
         CHAIN_ID = _chainId;
         minter = _minter;
-        _setDefaultRoyalty(royaltyReceiver, ROYALITY_FEE);
+        _setDefaultRoyalty(royaltyReceiver, ROYALTY_FEE);
 
         transferOwnership(_owner);
     }
@@ -106,7 +106,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
     /// @notice Update the royalty recipient
     function setRoyaltiesRecipient(address newRecipient) external {
         _requireOwner();
-        _setDefaultRoyalty(newRecipient, ROYALITY_FEE);
+        _setDefaultRoyalty(newRecipient, ROYALTY_FEE);
     }
 
     /// @notice Sets the mapping of eligible
@@ -131,7 +131,7 @@ contract PearlClubONFT is DefaultOperatorFilterer, ONFT721, ERC2981 {
 
     /// @notice Rescue function to mint ONFTs only after 30 days of deployment
     function rescueMint(address receiver, uint256 id) external {
-        if (block.timestamp > deployedOn + 30 days)
+        if (block.timestamp < deployedOn + 30 days)
             revert PearlClubONFT__RescueNotActive();
         if (_msgSender() != minter) revert PearlClubONFT__CallerNotMinter();
         if (totalSupply == MAX_MINT_ID) revert PearlClubONFT__FullyMinted();
