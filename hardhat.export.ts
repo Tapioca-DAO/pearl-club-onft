@@ -92,6 +92,10 @@ const config: HardhatUserConfig & { dodoc?: any } = {
             // MAINNET
             arbitrumOne: process.env.ARBITRUM_ONE_KEY ?? '',
             avalanche: process.env.AVALANCHE_KEY ?? '',
+            polygon: process.env.POLYGON_KEY ?? '',
+            opera: process.env.OPERA_KEY ?? '',
+            bsc: process.env.BSC_KEY ?? '',
+            optimisticEthereum: process.env.OPTIMISTIC_ETHEREUM_KEY ?? '',
         },
     },
     mocha: {
