@@ -78,10 +78,10 @@ function OPERATOR_FILTER_REGISTRY() external view returns (contract IOperatorFil
 |---|---|---|
 | _0 | contract IOperatorFilterRegistry | undefined |
 
-### ROYALITY_FEE
+### ROYALTY_FEE
 
 ```solidity
-function ROYALITY_FEE() external view returns (uint96)
+function ROYALTY_FEE() external view returns (uint96)
 ```
 
 
@@ -183,6 +183,23 @@ function clearCredits(bytes _payload) external nonpayable
 | Name | Type | Description |
 |---|---|---|
 | _payload | bytes | undefined |
+
+### deployedOn
+
+```solidity
+function deployedOn() external view returns (uint256)
+```
+
+Time at which the contract was deployed
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
 
 ### dstChainIdToBatchLimit
 
@@ -694,6 +711,23 @@ function renounceOwnership() external nonpayable
 
 *Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.*
 
+
+### rescueMint
+
+```solidity
+function rescueMint(address receiver, uint256 id) external nonpayable
+```
+
+Rescue function to mint ONFTs only after 30 days of deployment
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| receiver | address | undefined |
+| id | uint256 | undefined |
 
 ### retryMessage
 
@@ -1622,6 +1656,17 @@ error PearlClubONFT__InvalidMintingChain()
 
 ```solidity
 error PearlClubONFT__NoClaimAvailable()
+```
+
+
+
+
+
+
+### PearlClubONFT__RescueNotActive
+
+```solidity
+error PearlClubONFT__RescueNotActive()
 ```
 
 
