@@ -1,8 +1,10 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { PearlClubONFT__factory } from '../../typechain-types';
-import inquirer from 'inquirer';
 
-export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
+export const deployStackTestnet__task = async (
+    {},
+    hre: HardhatRuntimeEnvironment,
+) => {
     const { ethers } = hre;
     const tag = await hre.SDK.hardhatUtils.askForTag(hre, 'local');
     const signer = (await hre.ethers.getSigners())[0];
@@ -22,30 +24,18 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         tag,
     });
 
-    const { ipfs } = await inquirer.prompt({
-        type: 'input',
-        message: 'Enter the IPFS CID for the metadata',
-        name: 'ipfs',
-    });
-
-    const { multisig } = await inquirer.prompt({
-        type: 'input',
-        message: 'Enter the Multisig address',
-        name: 'multisig',
-    });
-
     VM.add<PearlClubONFT__factory>({
         contract: await ethers.getContractFactory('PearlClubONFT'),
         deploymentName: 'PearlClubONFT',
         args: [
             chainInfo.address,
-            ipfs,
+            `ipfs://${process.env.METADATA_CID}/arb/`,
             783,
             '350000',
-            multisig,
+            signer.address,
             signer.address,
             hostChainInfo.chainId,
-            '0x04afc14e687203d303515d51a97e517e8b6e13df',
+            signer.address,
         ],
     });
 
