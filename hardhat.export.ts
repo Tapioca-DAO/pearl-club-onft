@@ -82,12 +82,16 @@ const config: HardhatUserConfig & { dodoc?: any } = {
     },
     etherscan: {
         apiKey: {
+            // TESTNET
             goerli: process.env.BLOCKSCAN_KEY ?? '',
             arbitrumGoerli: process.env.ARBITRUM_GOERLI_KEY ?? '',
             avalancheFujiTestnet: process.env.AVALANCHE_FUJI_KEY ?? '',
             bscTestnet: process.env.BSC_KEY ?? '',
             polygonMumbai: process.env.POLYGON_MUMBAI ?? '',
             ftmTestnet: process.env.FTM_TESTNET ?? '',
+            // MAINNET
+            arbitrumOne: process.env.ARBITRUM_ONE_KEY ?? '',
+            avalanche: process.env.AVALANCHE_KEY ?? '',
         },
     },
     mocha: {

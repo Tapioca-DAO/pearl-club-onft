@@ -50,5 +50,75 @@
                 "meta": {}
             }
         ]
+    },
+    "prod": {
+        "42161": [
+            {
+                "name": "BulkOwnershipQuery",
+                "address": "0x5eFaacc38143Be759F4618DF7993821b6f29C359",
+                "meta": {
+                    "args": [],
+                    "salt": "0xb05c7fddc5efb2490410914a12025f52b25ea4f91cf48b1874f3075d50b1eef4",
+                    "create2": true
+                }
+            },
+            {
+                "name": "PearlClubONFT",
+                "address": "0x44e3223ae91F254483674BD589627350dc48A398",
+                "meta": {
+                    "args": [
+                        "0x3c2269811836af69497E5F486A85D7316753cf62",
+                        "ipfs://bafybeih7uo3ziudmsbfcpocmfhacb44hu7miciu62ctukjnrgndpfcksga/",
+                        783,
+                        "350000",
+                        "0x05262eb91b0b49d2f67091a978bc38E64339Be80",
+                        "0x30EC55E70282AC3A032A3C7003Ead8B79c76Fde6",
+                        "42161",
+                        "0x04afc14e687203d303515d51a97e517e8b6e13df"
+                    ],
+                    "salt": "0xe864634544367ed777e87214a8357b5e58b5a3f45ce621bf7b142c4a05ab5c9d",
+                    "create2": true
+                }
+            },
+            {
+                "name": "TapiocaDeployer",
+                "address": "0x76E2D76882838552d3B1F864Aa5080460E95f8ED",
+                "meta": {}
+            }
+        ],
+        "43114": [
+            {
+                "name": "BulkOwnershipQuery",
+                "address": "0x97416B50CAbd59A97B50FA2155c03Fb49bfA6D24",
+                "meta": {
+                    "args": [],
+                    "salt": "0xd5a2d25a971edb9780dd86d095ae9997a59114663ac3277704592627be7085f8",
+                    "create2": true
+                }
+            },
+            {
+                "name": "PearlClubONFT",
+                "address": "0x388372F884E51Bac8F4eddD4F256E55B598d6A6d",
+                "meta": {
+                    "args": [
+                        "0x3c2269811836af69497E5F486A85D7316753cf62",
+                        "ipfs://bafybeihbcr42zx2lfzzpcjfa52vrvwd2s2hxjcl7dfkto4x2ihfh6sgldu/",
+                        783,
+                        "350000",
+                        "0x54a7D685Bd11E25f7DDc6f90F4f0DB0C8b034E51",
+                        "0x30EC55E70282AC3A032A3C7003Ead8B79c76Fde6",
+                        "42161",
+                        "0x04afc14e687203d303515d51a97e517e8b6e13df"
+                    ],
+                    "salt": "0x02fc6cd76258c49c51c206bc83769b2d1d276b9a202ea3bc1f4f47c55bc259c2",
+                    "create2": true
+                }
+            },
+            {
+                "name": "TapiocaDeployer",
+                "address": "0x1d45fad34225Cb9472F60012Cd53EDD4055156FA",
+                "meta": {}
+            }
+        ]
     }
 }
