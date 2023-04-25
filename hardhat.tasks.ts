@@ -4,6 +4,7 @@ import { sendFrom__task } from './tasks/sendFrom';
 import { deployStackTestnet__task } from './tasks/deploy/00-deployStackTestnet';
 import { setClaim__task } from './tasks/execs/00-setClaim';
 import { deployStack__task } from './tasks/deploy/00-deployStack';
+import { setBulkClaim__task } from './tasks/execs/01-setBulkClaim';
 
 task('sendFrom', 'Sends ONFT to another chain', sendFrom__task);
 
@@ -16,3 +17,4 @@ task(
 );
 task('deployStack', 'Deploy the stack on mainnet', deployStack__task);
 task('setClaim', 'Set a claim list', setClaim__task);
+task('setBulkClaim', 'Set the claim list in bulk', setBulkClaim__task);
