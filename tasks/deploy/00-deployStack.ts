@@ -1,5 +1,8 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { PearlClubONFT__factory } from '../../typechain-types';
+import {
+    BulkOwnershipQuery__factory,
+    PearlClubONFT__factory,
+} from '../../typechain-types';
 import inquirer from 'inquirer';
 
 export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
@@ -32,6 +35,12 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         type: 'input',
         message: 'Enter the Multisig address',
         name: 'multisig',
+    });
+
+    VM.add<BulkOwnershipQuery__factory>({
+        contract: await ethers.getContractFactory('BulkOwnershipQuery'),
+        deploymentName: 'BulkOwnershipQuery',
+        args: [],
     });
 
     VM.add<PearlClubONFT__factory>({

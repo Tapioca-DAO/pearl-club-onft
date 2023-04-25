@@ -1,5 +1,8 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { PearlClubONFT__factory } from '../../typechain-types';
+import {
+    BulkOwnershipQuery__factory,
+    PearlClubONFT__factory,
+} from '../../typechain-types';
 
 export const deployStackTestnet__task = async (
     {},
@@ -22,6 +25,12 @@ export const deployStackTestnet__task = async (
         bytecodeSizeLimit: 100_000,
         debugMode: true,
         tag,
+    });
+
+    VM.add<BulkOwnershipQuery__factory>({
+        contract: await ethers.getContractFactory('BulkOwnershipQuery'),
+        deploymentName: 'BulkOwnershipQuery',
+        args: [],
     });
 
     VM.add<PearlClubONFT__factory>({
