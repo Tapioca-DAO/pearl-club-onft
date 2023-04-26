@@ -1,16 +1,23 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
-export const checkLost__task = async ({}, hre: HardhatRuntimeEnvironment) => {
+export const getLostAddresses = () => {
     const mitnedAddresses: any = getMinted();
     const whitelistedAddresses: any = getWhitelisted();
-    let lost = 0;
+    const lost = [];
     for (const minted of Object.keys(whitelistedAddresses)) {
         if (!mitnedAddresses[minted]) {
-            lost++;
-            console.log('Lost: ', minted);
+            lost.push(minted);
         }
     }
-    console.log('total', lost);
+    return lost;
+};
+
+export const checkLost__task = async ({}, hre: HardhatRuntimeEnvironment) => {
+    const lost = getLostAddresses();
+    for (const address of lost) {
+        console.log('Lost:', address);
+    }
+    console.log('total', lost.length);
 };
 
 function getMinted() {
