@@ -90,6 +90,7 @@ const config: HardhatUserConfig & { dodoc?: any } = {
             polygonMumbai: process.env.POLYGON_MUMBAI ?? '',
             ftmTestnet: process.env.FTM_TESTNET ?? '',
             // MAINNET
+            mainnet: process.env.MAINNET_KEY ?? '',
             arbitrumOne: process.env.ARBITRUM_ONE_KEY ?? '',
             avalanche: process.env.AVALANCHE_KEY ?? '',
             polygon: process.env.POLYGON_KEY ?? '',
