@@ -42,6 +42,7 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         message: 'Enter the Minter address',
         name: 'minter',
     });
+
     VM.add<BulkOwnershipQuery__factory>({
         contract: await ethers.getContractFactory('BulkOwnershipQuery'),
         deploymentName: 'BulkOwnershipQuery',
@@ -54,7 +55,7 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         args: [
             chainInfo.address,
             ipfs,
-            783,
+            714,
             '350000',
             multisig,
             minter,
@@ -63,7 +64,7 @@ export const deployStack__task = async ({}, hre: HardhatRuntimeEnvironment) => {
         ],
     });
 
-    await VM.execute(10);
+    await VM.execute(6);
     VM.save();
     await VM.verify();
 };

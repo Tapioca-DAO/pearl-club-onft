@@ -39,7 +39,7 @@ export const deployStackTestnet__task = async (
         args: [
             chainInfo.address,
             `ipfs://${process.env.METADATA_CID}/arb/`,
-            783,
+            714,
             '350000',
             signer.address,
             signer.address,
