@@ -38,26 +38,27 @@ export const setBulkClaim__task = async (
     console.log('[+] Claim set successfully');
 };
 function getAddresses() {
-    // const honorary = [
-    //     // Honorary
-    //     '0x8A815bE1511df8bd12F619D50D494ef3015686D6', // Gray
-    //     '0x89DcF20C1830Fe2A19E9Fd3495A2C987CF432809', // Ben
-    //     '0xc16FCbb54d0307053c8F3006F8a061373A67Ae9A', // twMatt
-    //     '0x23ca54a136da03110331e0bb43e7683f7a2c47a1', // 0xRektora
-    //     '0xbf7E82aB5EA3419477A6Fc9419071881DE0573fC', // PunkGod
-    //     '0xFCB4034d79D42A402B211FF540B267BC1d29B7F9', // MoME
-    //     '0x4E504F0401c5f4C19315A241D50ea6129aE087E4', // Miro
-    //     '0x0c6A2fFaeB9E005Dd2853c6831cFeBe564147ec5', // Cosmin
-    //     '0x5c72C2ec8ADa00c64Ba990BC7774ED1FBc15941F', // BarryLyndon
-    //     '0x38C9f634CCA7005705Ce2301f1529087a200aF47', // Giulio
-    //     '0xd9773691F7548A0e03E3CbfEA5B16592CA791C11', // 0xShippor
-    //     '0xFEF4bE904C2de5b6b6C4432aF47Adf00fF837D6e', // twJosh
-    //     '0x8a6C9A318825d7485183E052e616E0b1F6f14b71', // BoringCrypto
-    //     '0x04f8D1ae2C1D896BB3ffDa0D5269633B14DE78DA', // JonCrabb
-    //     '0x360f783AE3Ef51b00aA0dC13C0D12c81BF6b51dE', // Jayrod
-    // ];
+    const honorary = [
+        // Honorary
+        '0x8A815bE1511df8bd12F619D50D494ef3015686D6', // Gray
+        '0x89DcF20C1830Fe2A19E9Fd3495A2C987CF432809', // Ben
+        '0xc16FCbb54d0307053c8F3006F8a061373A67Ae9A', // twMatt
+        '0x23ca54a136da03110331e0bb43e7683f7a2c47a1', // 0xRektora
+        '0xbf7E82aB5EA3419477A6Fc9419071881DE0573fC', // PunkGod
+        '0xFCB4034d79D42A402B211FF540B267BC1d29B7F9', // MoME
+        '0x4E504F0401c5f4C19315A241D50ea6129aE087E4', // Miro
+        '0x0c6A2fFaeB9E005Dd2853c6831cFeBe564147ec5', // Cosmin
+        '0x5c72C2ec8ADa00c64Ba990BC7774ED1FBc15941F', // BarryLyndon
+        '0x38C9f634CCA7005705Ce2301f1529087a200aF47', // Giulio
+        '0xd9773691F7548A0e03E3CbfEA5B16592CA791C11', // 0xShippor
+        '0xFEF4bE904C2de5b6b6C4432aF47Adf00fF837D6e', // twJosh
+        '0x8a6C9A318825d7485183E052e616E0b1F6f14b71', // BoringCrypto
+        '0x04f8D1ae2C1D896BB3ffDa0D5269633B14DE78DA', // JonCrabb
+        '0x360f783AE3Ef51b00aA0dC13C0D12c81BF6b51dE', // Jayrod
+    ];
 
     return [
+        ...honorary,
         // whitelist
         '0x9fab7681c6CEEABA1d85bCFfe365B4b2520F3810',
         '0x3297A45396144a4a50D9E6841E9E6DB7377Bfc99',

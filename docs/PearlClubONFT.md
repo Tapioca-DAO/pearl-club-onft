@@ -134,22 +134,6 @@ function balanceOf(address owner) external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### bulkMint
-
-```solidity
-function bulkMint(uint256[] ids) external nonpayable
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| ids | uint256[] | undefined |
-
 ### claimsFinalized
 
 ```solidity
